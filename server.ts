@@ -1,7 +1,7 @@
 import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
-import { mockInventoryData } from './mocks.js';
-import { validateIdAndCount, createSuccessResponse } from './utils.js';
+import { mockInventoryData } from './public/mocks';
+import { validateIdAndCount, createSuccessResponse } from './public/utils';
 
 dotenv.config();
 

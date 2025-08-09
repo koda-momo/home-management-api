@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { ApiResponse } from './types.js';
+import { ApiResponse } from './types';
 
 export function validateIdAndCount(
   id: unknown,
