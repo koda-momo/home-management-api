@@ -114,15 +114,70 @@ app.post('/api/v1/item/count/add', (req: Request, res: Response) => {
     });
   }
 
-  item.count = newCount;
-
   res.json({
     status: 200,
     message: 'Count added successfully',
     data: {
       id: item.id,
       name: item.name,
-      count: item.count,
+      count: newCount,
+      url: item.url,
+    },
+  });
+});
+
+app.post('/api/v1/item/count/delete', (req: Request, res: Response) => {
+  const { id, count } = req.body;
+
+  if (!id || count === undefined || count === null) {
+    return res.status(400).json({
+      status: 400,
+      message: 'id and count are required',
+      data: null,
+    });
+  }
+
+  if (typeof id !== 'number' || typeof count !== 'number') {
+    return res.status(400).json({
+      status: 400,
+      message: 'id and count must be numbers',
+      data: null,
+    });
+  }
+
+  if (count <= 0) {
+    return res.status(400).json({
+      status: 400,
+      message: 'count must be positive',
+      data: null,
+    });
+  }
+
+  const item = mockInventoryData.find((item) => item.id === id);
+  if (!item) {
+    return res.status(404).json({
+      status: 404,
+      message: 'Item not found',
+      data: null,
+    });
+  }
+
+  const newCount = item.count - count;
+  if (newCount < 0) {
+    return res.status(400).json({
+      status: 400,
+      message: 'Cannot delete count: result would be negative',
+      data: null,
+    });
+  }
+
+  res.json({
+    status: 200,
+    message: 'Count deleted successfully',
+    data: {
+      id: item.id,
+      name: item.name,
+      count: newCount,
       url: item.url,
     },
   });
