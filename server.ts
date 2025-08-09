@@ -114,15 +114,13 @@ app.post('/api/v1/item/count/add', (req: Request, res: Response) => {
     });
   }
 
-  item.count = newCount;
-
   res.json({
     status: 200,
     message: 'Count added successfully',
     data: {
       id: item.id,
       name: item.name,
-      count: item.count,
+      count: newCount,
       url: item.url,
     },
   });
@@ -173,15 +171,13 @@ app.post('/api/v1/item/count/delete', (req: Request, res: Response) => {
     });
   }
 
-  item.count = newCount;
-
   res.json({
     status: 200,
     message: 'Count deleted successfully',
     data: {
       id: item.id,
       name: item.name,
-      count: item.count,
+      count: newCount,
       url: item.url,
     },
   });
