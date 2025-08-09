@@ -52,6 +52,14 @@ app.get('/api/v1/item', (req: Request, res: Response) => {
     );
   }
 
+  if ((id || name) && filteredData.length === 0) {
+    return res.status(404).json({
+      status: 404,
+      message: 'Item not found',
+      data: [],
+    });
+  }
+
   res.json({
     status: 200,
     message: 'Success',
