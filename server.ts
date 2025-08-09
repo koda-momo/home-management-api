@@ -6,6 +6,8 @@ dotenv.config();
 const app: Express = express();
 const port = process.env.PORT || 3000;
 
+app.use(express.json());
+
 interface InventoryItem {
   id: number;
   name: string;
@@ -64,6 +66,65 @@ app.get('/api/v1/item', (req: Request, res: Response) => {
     status: 200,
     message: 'Success',
     data: filteredData,
+  });
+});
+
+app.post('/api/v1/item/count/add', (req: Request, res: Response) => {
+  const { id, count } = req.body;
+
+  if (!id || count === undefined || count === null) {
+    return res.status(400).json({
+      status: 400,
+      message: 'id and count are required',
+      data: null,
+    });
+  }
+
+  if (typeof id !== 'number' || typeof count !== 'number') {
+    return res.status(400).json({
+      status: 400,
+      message: 'id and count must be numbers',
+      data: null,
+    });
+  }
+
+  if (count <= 0) {
+    return res.status(400).json({
+      status: 400,
+      message: 'count must be positive',
+      data: null,
+    });
+  }
+
+  const item = mockInventoryData.find((item) => item.id === id);
+  if (!item) {
+    return res.status(404).json({
+      status: 404,
+      message: 'Item not found',
+      data: null,
+    });
+  }
+
+  const newCount = item.count + count;
+  if (newCount >= 21) {
+    return res.status(400).json({
+      status: 400,
+      message: 'Cannot add count: total would exceed limit of 20',
+      data: null,
+    });
+  }
+
+  item.count = newCount;
+
+  res.json({
+    status: 200,
+    message: 'Count added successfully',
+    data: {
+      id: item.id,
+      name: item.name,
+      count: item.count,
+      url: item.url,
+    },
   });
 });
 
