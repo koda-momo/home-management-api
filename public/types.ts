@@ -3,6 +3,8 @@ export interface InventoryItem {
   name: string;
   count: number;
   url: string;
+  created_at?: Date;
+  updated_at?: Date;
 }
 
 export interface ApiResponse<T> {

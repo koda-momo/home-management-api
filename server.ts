@@ -1,7 +1,8 @@
 import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
-import { mockInventoryData } from './public/mocks';
 import { validateIdAndCount, createSuccessResponse } from './public/utils';
+import { testConnection } from './config/database';
+import { StockModel } from './models/stock';
 
 dotenv.config();
 
@@ -14,111 +15,163 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Hello, TypeScript Express!');
 });
 
-app.get('/api/v1/item', (req: Request, res: Response) => {
-  const { id, name } = req.query;
+app.get('/api/v1/item', async (req: Request, res: Response) => {
+  try {
+    const { id, name } = req.query;
 
-  let filteredData = mockInventoryData;
+    let data;
 
-  if (id) {
-    const itemId = parseInt(id as string);
-    if (isNaN(itemId)) {
-      return res.status(400).json({
-        status: 400,
-        message: 'Invalid id parameter',
+    if (id) {
+      const itemId = parseInt(id as string);
+      if (isNaN(itemId)) {
+        return res.status(400).json({
+          status: 400,
+          message: 'Invalid id parameter',
+          data: [],
+        });
+      }
+      const item = await StockModel.getById(itemId);
+      data = item ? [item] : [];
+    } else if (name) {
+      const itemName = name as string;
+      data = await StockModel.getByName(itemName);
+    } else {
+      data = await StockModel.getAll();
+    }
+
+    if ((id || name) && data.length === 0) {
+      return res.status(404).json({
+        status: 404,
+        message: 'Item not found',
         data: [],
       });
     }
-    filteredData = mockInventoryData.filter((item) => item.id === itemId);
-  } else if (name) {
-    const itemName = name as string;
-    filteredData = mockInventoryData.filter((item) =>
-      item.name.toLowerCase().includes(itemName.toLowerCase())
-    );
-  }
 
-  if ((id || name) && filteredData.length === 0) {
-    return res.status(404).json({
-      status: 404,
-      message: 'Item not found',
+    res.json({
+      status: 200,
+      message: 'Success',
+      data,
+    });
+  } catch (error) {
+    console.error('Database error:', error);
+    res.status(500).json({
+      status: 500,
+      message: 'Internal server error',
       data: [],
     });
   }
-
-  res.json({
-    status: 200,
-    message: 'Success',
-    data: filteredData,
-  });
 });
 
-app.post('/api/v1/item/count/add', (req: Request, res: Response) => {
-  const validation = validateIdAndCount(req.body.id, req.body.count, res);
-  if (!validation) return;
+app.post('/api/v1/item/count/add', async (req: Request, res: Response) => {
+  try {
+    const validation = validateIdAndCount(req.body.id, req.body.count, res);
+    if (!validation) return;
 
-  const { id, count } = validation;
+    const { id, count } = validation;
 
-  const item = mockInventoryData.find((item) => item.id === id);
-  if (!item) {
-    return res.status(404).json({
-      status: 404,
-      message: 'Item not found',
+    const item = await StockModel.getById(id);
+    if (!item) {
+      return res.status(404).json({
+        status: 404,
+        message: 'Item not found',
+        data: null,
+      });
+    }
+
+    const newCount = item.count + count;
+    if (newCount >= 21) {
+      return res.status(400).json({
+        status: 400,
+        message: 'Cannot add count: total would exceed limit of 20',
+        data: null,
+      });
+    }
+
+    const updated = await StockModel.updateCount(id, newCount);
+    if (!updated) {
+      return res.status(500).json({
+        status: 500,
+        message: 'Failed to update count',
+        data: null,
+      });
+    }
+
+    res.json(
+      createSuccessResponse('Count added successfully', {
+        id: item.id,
+        name: item.name,
+        count: newCount,
+        url: item.url,
+      })
+    );
+  } catch (error) {
+    console.error('Database error:', error);
+    res.status(500).json({
+      status: 500,
+      message: 'Internal server error',
       data: null,
     });
   }
-
-  const newCount = item.count + count;
-  if (newCount >= 21) {
-    return res.status(400).json({
-      status: 400,
-      message: 'Cannot add count: total would exceed limit of 20',
-      data: null,
-    });
-  }
-
-  res.json(
-    createSuccessResponse('Count added successfully', {
-      id: item.id,
-      name: item.name,
-      count: newCount,
-      url: item.url,
-    })
-  );
 });
 
-app.post('/api/v1/item/count/delete', (req: Request, res: Response) => {
-  const validation = validateIdAndCount(req.body.id, req.body.count, res);
-  if (!validation) return;
+app.post('/api/v1/item/count/delete', async (req: Request, res: Response) => {
+  try {
+    const validation = validateIdAndCount(req.body.id, req.body.count, res);
+    if (!validation) return;
 
-  const { id, count } = validation;
+    const { id, count } = validation;
 
-  const item = mockInventoryData.find((item) => item.id === id);
-  if (!item) {
-    return res.status(404).json({
-      status: 404,
-      message: 'Item not found',
+    const item = await StockModel.getById(id);
+    if (!item) {
+      return res.status(404).json({
+        status: 404,
+        message: 'Item not found',
+        data: null,
+      });
+    }
+
+    const newCount = item.count - count;
+    if (newCount < 0) {
+      return res.status(400).json({
+        status: 400,
+        message: 'Cannot delete count: result would be negative',
+        data: null,
+      });
+    }
+
+    const updated = await StockModel.updateCount(id, newCount);
+    if (!updated) {
+      return res.status(500).json({
+        status: 500,
+        message: 'Failed to update count',
+        data: null,
+      });
+    }
+
+    res.json(
+      createSuccessResponse('Count deleted successfully', {
+        id: item.id,
+        name: item.name,
+        count: newCount,
+        url: item.url,
+      })
+    );
+  } catch (error) {
+    console.error('Database error:', error);
+    res.status(500).json({
+      status: 500,
+      message: 'Internal server error',
       data: null,
     });
   }
-
-  const newCount = item.count - count;
-  if (newCount < 0) {
-    return res.status(400).json({
-      status: 400,
-      message: 'Cannot delete count: result would be negative',
-      data: null,
-    });
-  }
-
-  res.json(
-    createSuccessResponse('Count deleted successfully', {
-      id: item.id,
-      name: item.name,
-      count: newCount,
-      url: item.url,
-    })
-  );
 });
 
-app.listen(port, () => {
+app.listen(port, async () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
+  
+  try {
+    await testConnection();
+  } catch (error) {
+    console.error('Failed to connect to database. Server will continue without database connection.', error);
+  }
 });
