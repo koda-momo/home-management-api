@@ -5,13 +5,14 @@ import {
   errorHandler,
   notFoundHandler,
 } from './middlewares/errorMiddleware.js';
+import { BASE_URL } from './utils/const.js';
 
 dotenv.config();
 
 const app = express();
 
 app.use(express.json());
-app.use('/api/v1', apiRouter);
+app.use(BASE_URL, apiRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
 

@@ -1,1 +1,2 @@
-export const STOCK_API_BASE_URL = '/api/v1/stock';
+export const BASE_URL = '/api/v1';
+export const API_URL = { stock: '/stock' };
