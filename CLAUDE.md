@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 ### Core Commands
+
 - `npm run dev` - Start development server with nodemon
 - `npm run build` - Compile TypeScript to JavaScript
 - `npm start` - Run production server from compiled code
@@ -14,6 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run format` - Format code with Prettier
 
 ### Database Commands
+
 - `npx prisma generate` - Generate Prisma Client after schema changes
 - `npx prisma db push` - Push schema changes to database
 - `npx prisma studio` - Open Prisma Studio for database management
@@ -21,11 +23,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Architecture Overview
 
 ### Tech Stack
+
 - **Backend**: Node.js + Express + TypeScript
 - **Database**: MySQL with Prisma ORM
 - **Code Quality**: ESLint + Prettier + Husky pre-commit hooks
 
 ### Project Structure
+
 ```
 src/
 ├── app.ts                    # Express application setup and middleware configuration
@@ -53,6 +57,7 @@ src/
 ```
 
 ### MVC Architecture
+
 - **Controllers**: Handle HTTP requests, validate inputs, and format responses
 - **Services**: Contain business logic, data validation, and cross-cutting concerns
 - **Models**: Prisma-based data access layer with type-safe database operations
@@ -60,6 +65,7 @@ src/
 - **Middlewares**: Error handling, request processing, and cross-cutting concerns
 
 ### API Design
+
 - RESTful API following `/api/v1` base path structure
 - Consistent response format using `ApiResponse<T>` interface
 - Centralized error handling with appropriate HTTP status codes
@@ -67,6 +73,7 @@ src/
 - Route definitions use modular router pattern
 
 ### Database Architecture
+
 - Single `Stock` model for inventory management
 - Prisma ORM with MySQL database backend
 - Global Prisma client instance with development-mode singleton pattern
@@ -74,6 +81,7 @@ src/
 - Connection testing function `testPrismaConnection()` for health checks
 
 ### Development Workflow
+
 - Pre-commit hooks ensure TypeScript type checking and ESLint compliance
 - ES modules with `.js` file extensions in imports for proper TypeScript compilation
 - Environment variables managed via `.env` file
@@ -82,17 +90,20 @@ src/
 ## Key Implementation Details
 
 ### API Endpoints
+
 - `GET /api/v1/stock` - List all items, optionally filter by `id` or `name` query parameters
 - `POST /api/v1/stock/count/add` - Add to item count (enforces max limit of 20)
 - `POST /api/v1/stock/count/delete` - Subtract from item count (enforces min limit of 0)
 
 ### Error Handling
+
 - Centralized error middleware catches and formats all errors
 - Controllers use try-catch blocks with specific error handling for business logic violations
 - Services throw descriptive errors that controllers translate to appropriate HTTP status codes
 - 404 handler for undefined routes
 
 ### Type Safety
+
 - Strict TypeScript configuration with comprehensive type checking
 - Interface definitions for API requests/responses in `src/utils/types.ts`
 - Prisma generates type-safe database client from schema

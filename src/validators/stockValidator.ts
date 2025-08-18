@@ -1,39 +1,41 @@
-import { Response } from 'express';
+import { ZodError } from 'zod';
+import {
+  postStockCountSchema,
+  getStockSchema,
+  type StockIdAndCountOutput,
+  type StockQueryOutput,
+} from '../schemas/stockSchemas.js';
 
-export const validateIdAndCount = (
-  id: unknown,
-  count: unknown,
-  res: Response
-): { id: number; count: number } | null => {
-  if (id === undefined || count === undefined) {
-    res.status(400).json({
-      status: 400,
-      message: 'id and count are required',
-      data: null,
-    });
-    return null;
+export class ValidationError extends Error {
+  constructor(
+    public message: string,
+    public statusCode: number = 400
+  ) {
+    super(message);
+    this.name = 'ValidationError';
   }
+}
 
-  const parsedId = parseInt(id as string);
-  const parsedCount = parseInt(count as string);
-
-  if (isNaN(parsedId) || isNaN(parsedCount)) {
-    res.status(400).json({
-      status: 400,
-      message: 'id and count must be valid numbers',
-      data: null,
-    });
-    return null;
+export const validateIdAndCount = (data: unknown): StockIdAndCountOutput => {
+  try {
+    return postStockCountSchema.parse(data);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      const firstError = error.issues[0];
+      throw new ValidationError(firstError.message, 400);
+    }
+    throw new ValidationError('Validation failed', 400);
   }
+};
 
-  if (parsedCount <= 0) {
-    res.status(400).json({
-      status: 400,
-      message: 'count must be a positive number',
-      data: null,
-    });
-    return null;
+export const validateStockQuery = (data: unknown): StockQueryOutput => {
+  try {
+    return getStockSchema.parse(data);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      const firstError = error.issues[0];
+      throw new ValidationError(firstError.message, 400);
+    }
+    throw new ValidationError('Validation failed', 400);
   }
-
-  return { id: parsedId, count: parsedCount };
 };
