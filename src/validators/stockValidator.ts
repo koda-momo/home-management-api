@@ -1,7 +1,7 @@
 import { ZodError } from 'zod';
 import {
-  StockIdAndCountSchema,
-  StockQuerySchema,
+  postStockCountSchema,
+  getStockSchema,
   type StockIdAndCountOutput,
   type StockQueryOutput,
 } from '../schemas/stockSchemas.js';
@@ -18,7 +18,7 @@ export class ValidationError extends Error {
 
 export const validateIdAndCount = (data: unknown): StockIdAndCountOutput => {
   try {
-    return StockIdAndCountSchema.parse(data);
+    return postStockCountSchema.parse(data);
   } catch (error) {
     if (error instanceof ZodError) {
       const firstError = error.issues[0];
@@ -30,7 +30,7 @@ export const validateIdAndCount = (data: unknown): StockIdAndCountOutput => {
 
 export const validateStockQuery = (data: unknown): StockQueryOutput => {
   try {
-    return StockQuerySchema.parse(data);
+    return getStockSchema.parse(data);
   } catch (error) {
     if (error instanceof ZodError) {
       const firstError = error.issues[0];

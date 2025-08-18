@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-export const StockIdAndCountSchema = z.object({
+// ID(必須)
+const idSchema = {
   id: z
     .union([z.string(), z.number()])
     .transform((val) => {
@@ -19,6 +20,31 @@ export const StockIdAndCountSchema = z.object({
     .refine((val) => Number.isInteger(val) && val > 0, {
       message: 'id must be a positive integer',
     }),
+};
+
+// ID(任意)
+const idOptimalSchema = {
+  id: z
+    .string()
+    .optional()
+    .transform((val) => {
+      if (val === undefined) return undefined;
+      const parsed = parseInt(val, 10);
+      if (isNaN(parsed)) {
+        throw new z.ZodError([
+          {
+            code: 'custom',
+            message: 'id must be a valid number',
+            path: ['id'],
+          },
+        ]);
+      }
+      return parsed;
+    }),
+};
+
+// 個数
+const countSchema = {
   count: z
     .union([z.string(), z.number()])
     .transform((val) => {
@@ -37,30 +63,25 @@ export const StockIdAndCountSchema = z.object({
     .refine((val) => Number.isInteger(val) && val > 0, {
       message: 'count must be a positive integer',
     }),
-});
+};
 
-export const StockQuerySchema = z.object({
-  id: z
-    .string()
-    .optional()
-    .transform((val) => {
-      if (val === undefined) return undefined;
-      const parsed = parseInt(val, 10);
-      if (isNaN(parsed)) {
-        throw new z.ZodError([
-          {
-            code: 'custom',
-            message: 'id must be a valid number',
-            path: ['id'],
-          },
-        ]);
-      }
-      return parsed;
-    }),
+/**
+ * 在庫情報取得APIバリデーション.
+ */
+export const getStockSchema = z.object({
+  ...idOptimalSchema,
   name: z.string().optional(),
 });
 
-export type StockIdAndCountInput = z.input<typeof StockIdAndCountSchema>;
-export type StockIdAndCountOutput = z.output<typeof StockIdAndCountSchema>;
-export type StockQueryInput = z.input<typeof StockQuerySchema>;
-export type StockQueryOutput = z.output<typeof StockQuerySchema>;
+/**
+ * 在庫個数増減APIバリデーション.
+ */
+export const postStockCountSchema = z.object({
+  ...idSchema,
+  ...countSchema,
+});
+
+export type StockIdAndCountInput = z.input<typeof postStockCountSchema>;
+export type StockIdAndCountOutput = z.output<typeof postStockCountSchema>;
+export type getStockSchema = z.input<typeof getStockSchema>;
+export type StockQueryOutput = z.output<typeof getStockSchema>;
