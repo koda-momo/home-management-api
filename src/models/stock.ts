@@ -1,5 +1,5 @@
-import { prisma } from '../config/prisma';
-import { InventoryItem } from '../public/types';
+import { prisma } from '../config/prisma.js';
+import { InventoryItem } from '../utils/types.js';
 
 export class StockModel {
   static async getAll(): Promise<InventoryItem[]> {

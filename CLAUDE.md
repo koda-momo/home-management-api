@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 ### Core Commands
+
 - `npm run dev` - Start development server with nodemon
 - `npm run build` - Compile TypeScript to JavaScript
 - `npm start` - Run production server from compiled code
@@ -14,6 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run format` - Format code with Prettier
 
 ### Database Commands
+
 - `npx prisma generate` - Generate Prisma Client after schema changes
 - `npx prisma db push` - Push schema changes to database
 - `npx prisma studio` - Open Prisma Studio for database management
@@ -21,11 +23,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Architecture Overview
 
 ### Tech Stack
+
 - **Backend**: Node.js + Express + TypeScript
 - **Database**: MySQL with Prisma ORM
 - **Code Quality**: ESLint + Prettier + Husky pre-commit hooks
 
 ### Project Structure
+
 ```
 ├── config/
 │   ├── prisma.ts        # Prisma client initialization and connection testing
@@ -42,18 +46,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```
 
 ### Database Architecture
+
 - Uses Prisma as the primary ORM for MySQL database
 - Single `Stock` model for inventory management
 - Database URL configured via `DATABASE_URL` environment variable
 - Connection testing on server startup
 
 ### API Design
+
 - RESTful API following `/api/v1/stock` pattern
 - Consistent response format with `ApiResponse<T>` interface
 - Error handling with appropriate HTTP status codes
 - Request validation using utility functions
 
 ### Development Workflow
+
 - Pre-commit hooks run TypeScript type checking and ESLint
 - All code must pass type checking before commits
 - Prettier formatting is enforced
@@ -62,16 +69,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Key Implementation Details
 
 ### Prisma Integration
+
 - Global Prisma client instance with development-mode singleton pattern
 - Connection testing function `testPrismaConnection()` for health checks
 - Schema uses MySQL-specific field types and constraints
 
 ### API Endpoints
+
 - `GET /api/v1/stock` - List all items, filter by id or name
 - `POST /api/v1/stock/count/add` - Add to item count (max 20 limit)
 - `POST /api/v1/stock/count/delete` - Subtract from item count (min 0 limit)
 
 ### Code Quality Standards
+
 - TypeScript strict mode enabled
 - ESLint configuration with TypeScript rules
 - Prettier for consistent formatting
