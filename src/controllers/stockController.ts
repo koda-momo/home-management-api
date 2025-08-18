@@ -1,31 +1,27 @@
 import { Request, Response } from 'express';
 import { StockService } from '../services/stockService.js';
-import { validateIdAndCount } from '../validators/stockValidator.js';
+import {
+  validateIdAndCount,
+  validateStockQuery,
+  ValidationError,
+} from '../validators/stockValidator.js';
 import { createSuccessResponse } from '../utils/utils.js';
 
 export class StockController {
   static async getStock(req: Request, res: Response): Promise<Response | void> {
     try {
-      const { id, name } = req.query;
+      const { id, name } = validateStockQuery(req.query);
 
       let data;
-      if (id) {
-        const itemId = parseInt(id as string);
-        if (isNaN(itemId)) {
-          return res.status(400).json({
-            status: 400,
-            message: 'Invalid id parameter',
-            data: [],
-          });
-        }
-        data = await StockService.getStock(itemId);
+      if (id !== undefined) {
+        data = await StockService.getStock(id);
       } else if (name) {
-        data = await StockService.getStock(undefined, name as string);
+        data = await StockService.getStock(undefined, name);
       } else {
         data = await StockService.getStock();
       }
 
-      if ((id || name) && data.length === 0) {
+      if ((id !== undefined || name) && data.length === 0) {
         return res.status(404).json({
           status: 404,
           message: 'Item not found',
@@ -39,6 +35,14 @@ export class StockController {
         data,
       });
     } catch (error) {
+      if (error instanceof ValidationError) {
+        return res.status(error.statusCode).json({
+          status: error.statusCode,
+          message: error.message,
+          data: [],
+        });
+      }
+
       console.error('Database error:', error);
       res.status(500).json({
         status: 500,
@@ -50,15 +54,18 @@ export class StockController {
 
   static async addCount(req: Request, res: Response): Promise<Response | void> {
     try {
-      const validation = validateIdAndCount(req.body.id, req.body.count, res);
-      if (!validation) return;
-
-      const { id, count } = validation;
+      const { id, count } = validateIdAndCount(req.body);
 
       const result = await StockService.addCount(id, count);
       res.json(createSuccessResponse('Count added successfully', result));
     } catch (error) {
-      console.error('Database error:', error);
+      if (error instanceof ValidationError) {
+        return res.status(error.statusCode).json({
+          status: error.statusCode,
+          message: error.message,
+          data: null,
+        });
+      }
 
       if (error instanceof Error) {
         if (error.message === 'Item not found') {
@@ -81,6 +88,7 @@ export class StockController {
         }
       }
 
+      console.error('Database error:', error);
       res.status(500).json({
         status: 500,
         message: 'Internal server error',
@@ -89,17 +97,23 @@ export class StockController {
     }
   }
 
-  static async deleteCount(req: Request, res: Response): Promise<Response | void> {
+  static async deleteCount(
+    req: Request,
+    res: Response
+  ): Promise<Response | void> {
     try {
-      const validation = validateIdAndCount(req.body.id, req.body.count, res);
-      if (!validation) return;
-
-      const { id, count } = validation;
+      const { id, count } = validateIdAndCount(req.body);
 
       const result = await StockService.deleteCount(id, count);
       res.json(createSuccessResponse('Count deleted successfully', result));
     } catch (error) {
-      console.error('Database error:', error);
+      if (error instanceof ValidationError) {
+        return res.status(error.statusCode).json({
+          status: error.statusCode,
+          message: error.message,
+          data: null,
+        });
+      }
 
       if (error instanceof Error) {
         if (error.message === 'Item not found') {
@@ -122,6 +136,7 @@ export class StockController {
         }
       }
 
+      console.error('Database error:', error);
       res.status(500).json({
         status: 500,
         message: 'Internal server error',
