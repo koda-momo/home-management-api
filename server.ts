@@ -1,7 +1,7 @@
 import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import { validateIdAndCount, createSuccessResponse } from './public/utils';
-import { testConnection } from './config/database';
+import { testPrismaConnection } from './config/prisma';
 import { StockModel } from './models/stock';
 
 dotenv.config();
@@ -168,10 +168,13 @@ app.post('/api/v1/item/count/delete', async (req: Request, res: Response) => {
 
 app.listen(port, async () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
-  
+
   try {
-    await testConnection();
+    await testPrismaConnection();
   } catch (error) {
-    console.error('Failed to connect to database. Server will continue without database connection.', error);
+    console.error(
+      'Failed to connect to database. Server will continue without database connection.',
+      error
+    );
   }
 });
