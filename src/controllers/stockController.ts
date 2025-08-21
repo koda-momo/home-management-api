@@ -4,7 +4,7 @@ import {
   getStockService,
   postAddCountService,
   postSubCountService,
-} from '../services/stockService.js';
+} from '../services/stockService';
 
 /**
  * 在庫情報全取得API.

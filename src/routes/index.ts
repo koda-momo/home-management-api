@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { stockRouter } from './stock.js';
-import { gasRouter } from './gas.js';
-import { API_URL } from '../utils/const.js';
+import { stockRouter } from './stock';
+import { gasRouter } from './gas';
+import { API_URL } from '../utils/const';
 
 const router = Router();
 

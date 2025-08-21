@@ -4,16 +4,16 @@ import {
   getStockService,
   postAddCountService,
   postSubCountService,
-} from '../../services/stockService.js';
-import { StockModel } from '../../models/stock.js';
-import * as stockSchema from '../../schemas/stockSchema.js';
-import { errorResponse } from '../../utils/const.js';
+} from '../../services/stockService';
+import { StockModel } from '../../models/stock';
+import * as stockSchema from '../../schemas/stockSchema';
+import { errorResponse } from '../../utils/const';
 import {
   mockApiData,
   mockDbData,
   mockUpdatedApiData,
   mockUpdatedDbData,
-} from '../__mocks__/stock.js';
+} from '../__mocks__/stock';
 
 vi.mock('../../models/stock.js');
 vi.mock('../../schemas/stockSchema.js');

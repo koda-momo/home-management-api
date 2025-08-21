@@ -4,7 +4,7 @@ import {
   convertToJapanTime,
   convertToUTC,
   formatJapanTime,
-} from '../../utils/timezone.js';
+} from '../../utils/timezone';
 
 describe('timezone', () => {
   describe('getNowInJapan', () => {

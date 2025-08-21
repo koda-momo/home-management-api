@@ -1,11 +1,10 @@
 {
   "name": "home-management-api",
   "version": "1.0.0",
-  "type": "module",
+  "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/src/server.js",
-    "build": "tsc",
+    "start": "tsc && node dist/server.js",
     "dev": "nodemon src/server.ts",
     "prepare": "husky",
     "lint": "eslint .",
