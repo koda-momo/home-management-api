@@ -8,30 +8,18 @@ import {
 import { StockModel } from '../../models/stock.js';
 import * as stockSchema from '../../schemas/stockSchema.js';
 import { errorResponse } from '../../utils/const.js';
+import {
+  mockApiData,
+  mockDbData,
+  mockUpdatedApiData,
+  mockUpdatedDbData,
+} from '../__mocks__/stock.js';
 
 vi.mock('../../models/stock.js');
 vi.mock('../../schemas/stockSchema.js');
 
 const mockStockModel = vi.mocked(StockModel);
 const mockValidation = vi.mocked(stockSchema.validation);
-
-const mockDbData = {
-  id: 1,
-  name: 'テスト商品',
-  count: 5,
-  url: 'https://example.com',
-  created_at: new Date('2023-01-01T00:00:00Z'),
-  updated_at: new Date('2023-01-01T00:00:00Z'),
-};
-
-const mockApiData = {
-  id: 1,
-  name: 'テスト商品',
-  count: 5,
-  url: 'https://example.com',
-  createdAt: new Date('2023-01-01T00:00:00Z'),
-  updatedAt: new Date('2023-01-01T00:00:00Z'),
-};
 
 describe('stockService', () => {
   beforeEach(() => {
@@ -110,12 +98,10 @@ describe('stockService', () => {
   describe('postAddCountService', () => {
     it('在庫個数を正常に追加できること', async () => {
       const mockBody = { id: 1 };
-      const updatedMockDbData = { ...mockDbData, count: 6 };
-      const updatedMockApiData = { ...mockApiData, count: 6 };
 
       mockValidation.mockReturnValue({ id: 1 });
       mockStockModel.getById.mockResolvedValue(mockDbData);
-      mockStockModel.updateCount.mockResolvedValue(updatedMockDbData);
+      mockStockModel.updateCount.mockResolvedValue(mockUpdatedDbData);
 
       const result = await postAddCountService(mockBody);
 
@@ -125,7 +111,7 @@ describe('stockService', () => {
       );
       expect(mockStockModel.getById).toHaveBeenCalledWith(1);
       expect(mockStockModel.updateCount).toHaveBeenCalledWith(1, 6);
-      expect(result).toEqual(updatedMockApiData);
+      expect(result).toEqual(mockUpdatedApiData);
     });
 
     it('存在しないIDの場合はエラーをスローすること', async () => {

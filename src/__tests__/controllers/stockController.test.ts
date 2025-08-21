@@ -7,12 +7,16 @@ import {
   postSubStockCountController,
 } from '../../controllers/stockController.js';
 import * as stockService from '../../services/stockService.js';
+import { mockApiData, mockDbArray } from '../__mocks__/stock.js';
 
 vi.mock('../../services/stockService.js');
 
 const mockStockService = vi.mocked(stockService);
 
-const mockRequest = (params?: Record<string, string>, body?: unknown): Partial<Request> => ({
+const mockRequest = (
+  params?: Record<string, string>,
+  body?: unknown
+): Partial<Request> => ({
   params: params || {},
   body: body || {},
 });
@@ -24,17 +28,6 @@ const mockResponse = (): Partial<Response> => {
 };
 
 const mockNext = vi.fn() as NextFunction;
-
-const mockApiData = [
-  {
-    id: 1,
-    name: 'テスト商品',
-    count: 5,
-    url: 'https://example.com',
-    createdAt: new Date('2023-01-01T00:00:00Z'),
-    updatedAt: new Date('2023-01-01T00:00:00Z'),
-  },
-];
 
 describe('stockController', () => {
   beforeEach(() => {
@@ -55,7 +48,7 @@ describe('stockController', () => {
       await getAllStockController(req as Request, res as Response, mockNext);
 
       expect(mockStockService.getAllStockService).toHaveBeenCalledTimes(1);
-      expect(res.json).toHaveBeenCalledWith(mockApiData);
+      expect(res.json).toHaveBeenCalledWith(mockDbArray);
       expect(mockNext).not.toHaveBeenCalled();
     });
 
