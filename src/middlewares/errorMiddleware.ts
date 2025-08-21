@@ -1,28 +1,25 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
+import { ErrorResponse } from '../utils/types.js';
 
 export const errorHandler = (
-  error: Error,
-  req: Request,
+  err: ErrorResponse,
+  _req: Request,
   res: Response,
-  next: NextFunction
-): void => {
-  console.error('Error:', error);
-
-  // Express error handlers must have 4 parameters
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _next = next;
-
-  res.status(500).json({
-    status: 500,
-    message: 'Internal server error',
-    data: null,
+  _next: NextFunction
+): Response => {
+  return res.status(err.statusCode).json({
+    message: err.message,
+    status: err.statusCode,
   });
 };
 
-export const notFoundHandler = (req: Request, res: Response): void => {
-  res.status(404).json({
+export const notFoundHandler = (
+  _req: Request,
+  res: Response
+): Response => {
+  return res.status(404).json({
+    message: 'Not Found',
     status: 404,
-    message: 'Route not found',
-    data: null,
   });
 };

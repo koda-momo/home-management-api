@@ -1,10 +1,16 @@
 import { Router } from 'express';
-import { StockController } from '../controllers/stockController.js';
+import {
+  getAllStockController,
+  getIdStockController,
+  postAddStockCountController,
+  postSubStockCountController,
+} from '../controllers/stockController';
 
 const router = Router();
 
-router.get('/', StockController.getStock);
-router.post('/count/add', StockController.addCount);
-router.post('/count/delete', StockController.deleteCount);
+router.get('/', getAllStockController);
+router.get('/:id', getIdStockController);
+router.post('/count/add', postAddStockCountController);
+router.post('/count/sub', postSubStockCountController);
 
 export { router as stockRouter };

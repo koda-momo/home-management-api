@@ -1,72 +1,107 @@
+import { Request } from 'express';
 import { StockModel } from '../models/stock.js';
-import { InventoryItem } from '../utils/types.js';
+import {
+  getIdStockSchema,
+  postAddStockCountSchema,
+  postSubStockCountSchema,
+  validation,
+} from '../schemas/stockSchema.js';
+import { StockApiData, StockDbData } from '../types/stockType.js';
+import {
+  EDIT_STOCK_COUNT,
+  MAX_STOCK_COUNT,
+  MIN_STOCK_COUNT,
+  errorResponse,
+} from '../utils/const.js';
 
-interface StockResponse {
-  id: number;
-  name: string;
-  count: number;
-  url: string;
-}
+const toCamelCaseKeys = (data: StockDbData): StockApiData => {
+  const { created_at, updated_at, ...rest } = data;
+  return {
+    ...rest,
+    createdAt: created_at,
+    updatedAt: updated_at,
+  };
+};
 
-export class StockService {
-  static async getStock(id?: number, name?: string): Promise<InventoryItem[]> {
-    if (id) {
-      const item = await StockModel.getById(id);
-      return item ? [item] : [];
-    }
-
-    if (name) {
-      return await StockModel.getByName(name);
-    }
-
-    return await StockModel.getAll();
+/**
+ * 在庫情報全取得API.
+ */
+export const getAllStockService = async (): Promise<StockApiData[]> => {
+  const data = await StockModel.getAll();
+  if (!data) {
+    throw errorResponse.stockNotFound;
   }
 
-  static async addCount(id: number, count: number): Promise<StockResponse> {
-    const item = await StockModel.getById(id);
-    if (!item) {
-      throw new Error('Item not found');
-    }
+  const responseData = data.map((item) => toCamelCaseKeys(item));
+  return responseData;
+};
 
-    const newCount = item.count + count;
-    if (newCount >= 21) {
-      throw new Error('Cannot add count: total would exceed limit of 20');
-    }
+/**
+ * 在庫情報ID取得API.
+ */
+export const getStockService = async (
+  query: Request['params']
+): Promise<StockApiData[]> => {
+  const { id } = validation(query, getIdStockSchema);
+  const data = await StockModel.getById(id);
+  if (!data) {
+    throw errorResponse.stockNotFound;
+  }
+  return [toCamelCaseKeys(data)];
+};
 
-    const updated = await StockModel.updateCount(id, newCount);
-    if (!updated) {
-      throw new Error('Failed to update count');
-    }
+/**
+ * 在庫個数追加API.
+ */
+export const postAddCountService = async (
+  body: Request['body']
+): Promise<StockApiData> => {
+  const { id } = validation(body, postAddStockCountSchema);
+  const data = await StockModel.getById(id);
 
-    return {
-      id: item.id,
-      name: item.name,
-      count: newCount,
-      url: item.url,
-    };
+  // エラーチェック
+  if (!data) {
+    throw errorResponse.stockNotFound;
   }
 
-  static async deleteCount(id: number, count: number): Promise<StockResponse> {
-    const item = await StockModel.getById(id);
-    if (!item) {
-      throw new Error('Item not found');
-    }
-
-    const newCount = item.count - count;
-    if (newCount < 0) {
-      throw new Error('Cannot delete count: result would be negative');
-    }
-
-    const updated = await StockModel.updateCount(id, newCount);
-    if (!updated) {
-      throw new Error('Failed to update count');
-    }
-
-    return {
-      id: item.id,
-      name: item.name,
-      count: newCount,
-      url: item.url,
-    };
+  const newCount = data.count + EDIT_STOCK_COUNT;
+  if (newCount >= MAX_STOCK_COUNT) {
+    throw errorResponse.maxStockCount;
   }
-}
+
+  // 更新処理
+  const updated = await StockModel.updateCount(id, newCount);
+  if (!updated) {
+    throw errorResponse.failedToUpdateCount;
+  }
+
+  return toCamelCaseKeys(updated);
+};
+
+/**
+ * 在庫個数削除API.
+ */
+export const postSubCountService = async (
+  body: Request['body']
+): Promise<StockApiData> => {
+  const { id } = validation(body, postSubStockCountSchema);
+  const data = await StockModel.getById(id);
+
+  // エラーチェック
+  if (!data) {
+    throw errorResponse.stockNotFound;
+  }
+
+  const newCount = data.count - EDIT_STOCK_COUNT;
+  if (newCount < MIN_STOCK_COUNT) {
+    throw errorResponse.minStockCount;
+  }
+
+  // 更新処理
+  const updated = await StockModel.updateCount(id, newCount);
+  if (!updated) {
+    throw errorResponse.failedToUpdateCount;
+  }
+
+  return toCamelCaseKeys(updated);
+};
