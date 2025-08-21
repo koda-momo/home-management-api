@@ -1,5 +1,6 @@
 import { prisma } from '../config/prisma.js';
 import { StockDbData } from '../types/stockType.js';
+import { getNowInJapan } from '../utils/timezone.js';
 
 export class StockModel {
   static async getAll(): Promise<StockDbData[]> {
@@ -23,7 +24,10 @@ export class StockModel {
     try {
       const result = await prisma.stock.update({
         where: { id },
-        data: { count: newCount },
+        data: {
+          count: newCount,
+          updated_at: getNowInJapan(),
+        },
       });
       return result;
     } catch {

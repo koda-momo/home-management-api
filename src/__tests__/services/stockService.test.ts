@@ -151,7 +151,14 @@ describe('stockService', () => {
     it('在庫個数を正常に削除できること', async () => {
       const mockBody = { id: 1 };
       const updatedMockDbData = { ...mockDbData, count: 4 };
-      const updatedMockApiData = { ...mockApiData, count: 4 };
+      const expectedResult = {
+        id: 1,
+        name: 'テスト商品1',
+        count: 4,
+        url: 'https://example.com/1',
+        createdAt: new Date('2023-01-01T00:00:00+09:00'),
+        updatedAt: new Date('2023-01-01T00:00:00+09:00'),
+      };
 
       mockValidation.mockReturnValue({ id: 1 });
       mockStockModel.getById.mockResolvedValue(mockDbData);
@@ -165,7 +172,7 @@ describe('stockService', () => {
       );
       expect(mockStockModel.getById).toHaveBeenCalledWith(1);
       expect(mockStockModel.updateCount).toHaveBeenCalledWith(1, 4);
-      expect(result).toEqual(updatedMockApiData);
+      expect(result).toEqual(expectedResult);
     });
 
     it('存在しないIDの場合はエラーをスローすること', async () => {

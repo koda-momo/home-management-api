@@ -18,8 +18,8 @@ model Stock {
   name       String   @db.VarChar(255)
   count      Int      @default(0)
   url        String   @db.VarChar(500)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at DateTime
+  updated_at DateTime
 
   @@map("stock")
 }
