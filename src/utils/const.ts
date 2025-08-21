@@ -1,5 +1,5 @@
 export const BASE_URL = '/api/v1';
-export const API_URL = { stock: '/stock' };
+export const API_URL = { stock: '/stock', gas: '/gas' };
 
 // stock
 export const MAX_STOCK_COUNT = 21;
