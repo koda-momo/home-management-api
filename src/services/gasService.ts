@@ -10,11 +10,34 @@ const SCRAPING_GAS_URL = process.env.SCRAPING_GAS_URL || '';
 export const scrapeGasUsage = async (): Promise<GasUsageData> => {
   let browser: Browser | null = null;
   try {
-    browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    const launchOptions: {
+      headless: boolean;
+      timeout: number;
+      args: string[];
+      executablePath?: string;
+    } = {
       headless: true,
       timeout: 30000,
-    });
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--disable-extensions',
+        '--no-first-run',
+        '--disable-default-apps',
+        '--disable-background-timer-throttling',
+        '--disable-backgrounding-occluded-windows',
+        '--disable-renderer-backgrounding'
+      ]
+    };
+
+    // Production環境（Render等）での実行可能ファイルパス設定
+    if (process.env.NODE_ENV === 'production') {
+      launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable';
+    }
+
+    browser = await puppeteer.launch(launchOptions);
 
     //ログインページを開く
     const page = await browser.newPage();

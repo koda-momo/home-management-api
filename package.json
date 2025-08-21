@@ -4,7 +4,7 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && node dist/server.js",
+    "start": "npx puppeteer browsers install chrome --force && tsc && node dist/server.js",
     "dev": "nodemon src/server.ts",
     "prepare": "husky",
     "lint": "eslint .",
@@ -13,7 +13,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "postinstall": "npx puppeteer browsers install chrome || true"
   },
   "keywords": [],
   "author": "",
