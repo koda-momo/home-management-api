@@ -2,7 +2,10 @@ import express from 'express';
 import dotenv from 'dotenv';
 import { apiRouter } from './routes/index.js';
 import { BASE_URL } from './utils/const.js';
-import { errorHandler, notFoundHandler } from './middlewares/errorMiddleware.js';
+import {
+  errorHandler,
+  notFoundHandler,
+} from './middlewares/errorMiddleware.js';
 
 dotenv.config();
 

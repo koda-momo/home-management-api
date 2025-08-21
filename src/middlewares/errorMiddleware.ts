@@ -14,10 +14,7 @@ export const errorHandler = (
   });
 };
 
-export const notFoundHandler = (
-  _req: Request,
-  res: Response
-): Response => {
+export const notFoundHandler = (_req: Request, res: Response): Response => {
   return res.status(404).json({
     message: 'Not Found',
     status: 404,
