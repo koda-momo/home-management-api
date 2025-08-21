@@ -16,6 +16,8 @@ const mockResponse = (): Partial<Response> => {
   return res;
 };
 
+const mockNext = vi.fn();
+
 describe('gasController', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -33,28 +35,24 @@ describe('gasController', () => {
 
       mockGasService.scrapeGasUsage.mockResolvedValue(mockGasData);
 
-      await getGasUsage(req as Request, res as Response);
+      await getGasUsage(req as Request, res as Response, mockNext);
 
       expect(mockGasService.scrapeGasUsage).toHaveBeenCalledTimes(1);
-      expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(mockGasData);
+      expect(mockNext).not.toHaveBeenCalled();
     });
 
-    it('サービス層でエラーが発生した場合は500エラーを返すこと', async () => {
+    it('サービス層でエラーが発生した場合はnext関数を呼ぶこと', async () => {
       const req = mockRequest();
       const res = mockResponse();
       const error = new Error('Scraping failed');
 
       mockGasService.scrapeGasUsage.mockRejectedValue(error);
 
-      await getGasUsage(req as Request, res as Response);
+      await getGasUsage(req as Request, res as Response, mockNext);
 
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({
-        name: 'Error',
-        message: 'Internal Server Error',
-        statusCode: 500,
-      });
+      expect(mockNext).toHaveBeenCalledWith(error);
+      expect(res.json).not.toHaveBeenCalled();
     });
   });
 });

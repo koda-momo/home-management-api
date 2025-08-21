@@ -1,17 +1,17 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { scrapeGasUsage } from '../services/gasService.js';
-
-export const getGasUsage = async (req: Request, res: Response) => {
+/**
+ * ガス代取得API.
+ */
+export const getGasUsage = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const gasData = await scrapeGasUsage();
-    res.status(200).json(gasData);
+    const response = await scrapeGasUsage();
+    res.json(response);
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('ガス使用量の取得でエラーが発生しました:', error);
-    res.status(500).json({
-      name: 'Error',
-      message: 'Internal Server Error',
-      statusCode: 500,
-    });
+    next(error);
   }
 };

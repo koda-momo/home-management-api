@@ -1,84 +1,79 @@
-import puppeteer from 'puppeteer';
-import chromium from 'chrome-aws-lambda';
+import puppeteer, { type Browser } from 'puppeteer';
 import type { GasUsageData } from '../utils/types.js';
+import { errorResponse } from '../utils/const.js';
+
+const SCRAPING_USER_AGENT = process.env.SCRAPING_USER_AGENT || '';
+const SCRAPING_USER_ID = process.env.SCRAPING_USER_ID || '';
+const SCRAPING_PASSWORD = process.env.SCRAPING_PASSWORD || '';
+const SCRAPING_GAS_URL = process.env.SCRAPING_GAS_URL || '';
 
 export const scrapeGasUsage = async (): Promise<GasUsageData> => {
-  let browser = null;
-
+  let browser: Browser | null = null;
   try {
-    // Puppeteerのブラウザを起動
     browser = await puppeteer.launch({
-      args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
       headless: true,
+      timeout: 30000,
     });
 
-    // 新しいページを開く
+    //ログインページを開く
     const page = await browser.newPage();
-    await page.setUserAgent(process.env.NEXT_PUBLIC_USER_AGENT!);
-    await page.setExtraHTTPHeaders({
-      'Accept-Language': 'en-US,en;q=0.9',
+    page.setDefaultNavigationTimeout(30000);
+    page.setDefaultTimeout(30000);
+    await page.setBypassCSP(true);
+    await page.setUserAgent(SCRAPING_USER_AGENT);
+
+    await page.goto(SCRAPING_GAS_URL, {
+      waitUntil: 'networkidle2',
+      timeout: 30000,
     });
+    //ログインする
+    await page.waitForSelector('#loginId', { timeout: 10000 });
+    await page.type('#loginId', SCRAPING_USER_ID);
+    await page.type('#password', SCRAPING_PASSWORD);
 
-    // ログインページに移動
     await Promise.all([
-      page.waitForNavigation({
-        waitUntil: ['domcontentloaded', 'networkidle2'],
-      }),
-      page.goto(process.env.NEXT_PUBLIC_JCB_URL!),
+      page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 }),
+      page.click('button[id="submit-btn"]'),
     ]);
 
-    // ログイン情報を入力
-    await page.type('#userId', process.env.NEXT_PUBLIC_JCB_ID!);
-    await page.type('#password', process.env.NEXT_PUBLIC_PASSWORD!);
-
-    // ログインボタンをクリック
-    await Promise.all([
-      page.waitForNavigation({
-        waitUntil: ['domcontentloaded', 'networkidle2'],
-      }),
-      page.click('a[id="loginButtonAD"]'),
-    ]);
-
-    // 合言葉を入力
-    await page.type(
-      'input[id="form1:answer_"]',
-      process.env.NEXT_PUBLIC_JCB_PASS!
+    //データを取得
+    await page.waitForFunction(
+      () => {
+        const element = document.querySelector(
+          'a[href="/billing?tab=overview"]'
+        );
+        return (
+          element && element.textContent && element.textContent.includes('円')
+        );
+      },
+      { timeout: 10000 }
+    );
+    const data = await page.$eval(
+      'a[href$="/billing?tab=overview"]',
+      (item: { textContent: unknown }) => {
+        return item.textContent;
+      }
     );
 
-    await Promise.all([
-      page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
-      page.click('input[id="form1:j_idt68"]'),
-    ]);
-
-    // 利用明細ページに移動
-    await Promise.all([
-      page.waitForNavigation({
-        waitUntil: ['domcontentloaded', 'networkidle2'],
-      }),
-      page.goto(process.env.NEXT_PUBLIC_JCB_DETAIL_URL!),
-    ]);
-
-    // データを取得
-    const response = await page.$$eval('.detail-txt-price', (options) => {
-      return options.map((option) => option.textContent);
-    });
-
-    if (!response || !response[1]) {
-      throw new Error('ガス使用料金データの取得に失敗しました');
+    // 金額部分のみを抽出
+    if (typeof data !== 'string') {
+      throw {
+        ...errorResponse.internalServerError,
+        message: '取得したデータが文字列ではありません。',
+      };
     }
 
-    const amount = response[1]
-      .replace(/\n/g, '')
-      .replace(/ /g, '')
-      .replace('円', '');
+    const amountMatch = data.match(/[\d,]+円/);
+    const amount = amountMatch ? amountMatch[0].replace(/[,円]/g, '') : data;
 
+    // ガス使用量データ取得成功
     return { amount };
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('スクレイピング中にエラーが発生しました:', error);
-    throw error;
+    throw {
+      ...errorResponse.internalServerError,
+      message: `スクレイピングに失敗しました:${error}`,
+    };
   } finally {
     // ブラウザを確実に閉じる
     if (browser) {
