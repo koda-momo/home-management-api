@@ -3,13 +3,13 @@ import { PrismaClient } from '@prisma/client';
 import { getNowInJapan } from '../utils/timezone.js';
 
 const globalForPrisma = globalThis as unknown as {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  prisma: any;
+  prisma?: PrismaClient;
 };
 
 // 日本時間対応のクエリエクステンションを作成
-const basePrisma = new PrismaClient();
-export const prisma = basePrisma.$extends({
+const prismaBase = globalForPrisma.prisma ?? new PrismaClient();
+
+export const prisma = prismaBase.$extends({
   query: {
     $allOperations({ args, query, operation }) {
       // 作成・更新処理の場合、日本時間を設定
@@ -29,9 +29,9 @@ export const prisma = basePrisma.$extends({
   },
 });
 
-globalForPrisma.prisma = prisma;
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prismaBase;
+}
 
 export async function testPrismaConnection(): Promise<void> {
   try {
