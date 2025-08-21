@@ -7,7 +7,7 @@ import {
   postSubStockCountController,
 } from '../../controllers/stockController.js';
 import * as stockService from '../../services/stockService.js';
-import { mockApiData, mockDbArray } from '../__mocks__/stock.js';
+import { mockApiData } from '../__mocks__/stock.js';
 
 vi.mock('../../services/stockService.js');
 
@@ -43,12 +43,12 @@ describe('stockController', () => {
       const req = mockRequest();
       const res = mockResponse();
 
-      mockStockService.getAllStockService.mockResolvedValue(mockApiData);
+      mockStockService.getAllStockService.mockResolvedValue([mockApiData]);
 
       await getAllStockController(req as Request, res as Response, mockNext);
 
       expect(mockStockService.getAllStockService).toHaveBeenCalledTimes(1);
-      expect(res.json).toHaveBeenCalledWith(mockDbArray);
+      expect(res.json).toHaveBeenCalledWith([mockApiData]);
       expect(mockNext).not.toHaveBeenCalled();
     });
 
@@ -71,14 +71,14 @@ describe('stockController', () => {
       const req = mockRequest({ id: '1' });
       const res = mockResponse();
 
-      mockStockService.getStockService.mockResolvedValue(mockApiData);
+      mockStockService.getStockService.mockResolvedValue([mockApiData]);
 
       await getIdStockController(req as Request, res as Response, mockNext);
 
       expect(mockStockService.getStockService).toHaveBeenCalledWith({
         id: '1',
       });
-      expect(res.json).toHaveBeenCalledWith(mockApiData);
+      expect(res.json).toHaveBeenCalledWith([mockApiData]);
       expect(mockNext).not.toHaveBeenCalled();
     });
 
@@ -100,7 +100,7 @@ describe('stockController', () => {
     it('在庫個数を正常に追加できること', async () => {
       const req = mockRequest(undefined, { id: 1 });
       const res = mockResponse();
-      const updatedData = { ...mockApiData[0], count: 6 };
+      const updatedData = { ...mockApiData, count: 6 };
 
       mockStockService.postAddCountService.mockResolvedValue(updatedData);
 
@@ -139,7 +139,7 @@ describe('stockController', () => {
     it('在庫個数を正常に削除できること', async () => {
       const req = mockRequest(undefined, { id: 1 });
       const res = mockResponse();
-      const updatedData = { ...mockApiData[0], count: 4 };
+      const updatedData = { ...mockApiData, count: 4 };
 
       mockStockService.postSubCountService.mockResolvedValue(updatedData);
 
