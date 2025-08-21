@@ -3,13 +3,6 @@ import { scrapeGasUsage } from '../../services/gasService.js';
 import puppeteer, { type Browser, type Page } from 'puppeteer';
 
 vi.mock('puppeteer');
-vi.mock('chrome-aws-lambda', () => ({
-  default: {
-    args: [],
-    defaultViewport: { width: 1280, height: 720 },
-    executablePath: vi.fn().mockResolvedValue('/usr/bin/chromium'),
-  },
-}));
 
 const mockPuppeteer = vi.mocked(puppeteer);
 
