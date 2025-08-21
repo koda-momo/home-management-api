@@ -1,6 +1,6 @@
 import puppeteer, { type Browser } from 'puppeteer';
-import type { GasUsageData } from '../utils/types.js';
-import { errorResponse } from '../utils/const.js';
+import type { GasUsageData } from '../utils/types';
+import { errorResponse } from '../utils/const';
 
 const SCRAPING_USER_AGENT = process.env.SCRAPING_USER_AGENT || '';
 const SCRAPING_USER_ID = process.env.SCRAPING_USER_ID || '';

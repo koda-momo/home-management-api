@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Request, Response } from 'express';
-import { getGasUsage } from '../../controllers/gasController.js';
-import * as gasService from '../../services/gasService.js';
+import { getGasUsage } from '../../controllers/gasController';
+import * as gasService from '../../services/gasService';
 
 vi.mock('../../services/gasService.js');
 
