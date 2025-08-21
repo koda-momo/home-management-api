@@ -1,6 +1,6 @@
-import { prisma } from '../config/prisma.js';
-import { StockDbData } from '../types/stockType.js';
-import { getNowInJapan } from '../utils/timezone.js';
+import { prisma } from '../config/prisma';
+import { StockDbData } from '../types/stockType';
+import { getNowInJapan } from '../utils/timezone';
 
 export class StockModel {
   static async getAll(): Promise<StockDbData[]> {

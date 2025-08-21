@@ -1,18 +1,18 @@
 import { Request } from 'express';
-import { StockModel } from '../models/stock.js';
+import { StockModel } from '../models/stock';
 import {
   getIdStockSchema,
   postAddStockCountSchema,
   postSubStockCountSchema,
   validation,
-} from '../schemas/stockSchema.js';
-import { StockApiData, StockDbData } from '../types/stockType.js';
+} from '../schemas/stockSchema';
+import { StockApiData, StockDbData } from '../types/stockType';
 import {
   EDIT_STOCK_COUNT,
   MAX_STOCK_COUNT,
   MIN_STOCK_COUNT,
   errorResponse,
-} from '../utils/const.js';
+} from '../utils/const';
 
 const toCamelCaseKeys = (data: StockDbData): StockApiData => {
   const { created_at, updated_at, ...rest } = data;

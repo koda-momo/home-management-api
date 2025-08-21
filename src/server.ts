@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-import { app } from './app.js';
-import { testPrismaConnection } from './config/prisma.js';
+import { app } from './app';
+import { testPrismaConnection } from './config/prisma';
 
 const port = process.env.PORT || 3000;
 

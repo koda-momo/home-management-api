@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getGasUsage } from '../controllers/gasController.js';
+import { getGasUsage } from '../controllers/gasController';
 
 const router = Router();
 

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { scrapeGasUsage } from '../services/gasService.js';
+import { scrapeGasUsage } from '../services/gasService';
 /**
  * ガス代取得API.
  */

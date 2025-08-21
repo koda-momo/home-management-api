@@ -5,9 +5,9 @@ import {
   getIdStockController,
   postAddStockCountController,
   postSubStockCountController,
-} from '../../controllers/stockController.js';
-import * as stockService from '../../services/stockService.js';
-import { mockApiData } from '../__mocks__/stock.js';
+} from '../../controllers/stockController';
+import * as stockService from '../../services/stockService';
+import { mockApiData } from '../__mocks__/stock';
 
 vi.mock('../../services/stockService.js');
 

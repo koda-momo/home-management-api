@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { scrapeGasUsage } from '../../services/gasService.js';
+import { scrapeGasUsage } from '../../services/gasService';
 import puppeteer, { type Browser, type Page } from 'puppeteer';
 
 vi.mock('puppeteer');
