@@ -9,10 +9,11 @@ export default tseslint.config(
   {
     files: ['**/*.{js,ts}'],
     rules: {
+      // ❌ error
       '@typescript-eslint/no-unused-vars': 'error',
-      '@typescript-eslint/explicit-function-return-type': 'warn',
       'prefer-const': 'error',
       'no-var': 'error',
+      'no-console': 'error',
     },
   },
   {
