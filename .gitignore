@@ -3,3 +3,4 @@ dist/
 .env
 .zshrc
 /generated/prisma
+coverage/
