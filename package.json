@@ -14,7 +14,7 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
-    "postinstall": "npx puppeteer browsers install chrome || true"
+    "postinstall": "npm install && npx puppeteer browsers install chrome"
   },
   "keywords": [],
   "author": "",
