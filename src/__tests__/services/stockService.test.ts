@@ -16,8 +16,8 @@ import {
 } from '../__mocks__/stock';
 import { validation } from '../../schemas';
 
-vi.mock('../../models/stock.js');
-vi.mock('../../schemas/stockSchema.js');
+vi.mock('../../models/stock');
+vi.mock('../../schemas');
 
 const mockStockModel = vi.mocked(StockModel);
 const mockValidation = vi.mocked(validation);
