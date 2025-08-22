@@ -83,7 +83,6 @@ describe('spentService', () => {
 
       await expect(getAllSpentService()).rejects.toThrow(firebaseError);
     });
-
   });
 
   describe('getMonthSpentService', () => {
@@ -120,7 +119,6 @@ describe('spentService', () => {
 
       await expect(getMonthSpentService()).rejects.toThrow(firebaseError);
     });
-
   });
 
   describe('postSpentService', () => {
@@ -136,9 +134,14 @@ describe('spentService', () => {
       (ref as Mock).mockReturnValue('mockRef');
       (set as Mock).mockResolvedValue(undefined);
 
-      const result = await postSpentService(mockSpentRequestBody as Request['body']);
+      const result = await postSpentService(
+        mockSpentRequestBody as Request['body']
+      );
 
-      expect(validation).toHaveBeenCalledWith(mockSpentRequestBody, expect.anything());
+      expect(validation).toHaveBeenCalledWith(
+        mockSpentRequestBody,
+        expect.anything()
+      );
       expect(makeYearMonthString).toHaveBeenCalledWith(expect.any(Date));
       expect(set).toHaveBeenCalledWith('mockRef', {
         spending: 68000,
@@ -159,7 +162,9 @@ describe('spentService', () => {
         throw error;
       });
 
-      await expect(postSpentService({} as Request['body'])).rejects.toThrow('Validation error');
+      await expect(postSpentService({} as Request['body'])).rejects.toThrow(
+        'Validation error'
+      );
     });
 
     it('異常系: FirebaseErrorが発生した場合はそのままthrowする', async () => {
@@ -174,10 +179,9 @@ describe('spentService', () => {
       const firebaseError = new FirebaseError('Write failed', 'write-failed');
       (set as Mock).mockRejectedValue(firebaseError);
 
-      await expect(postSpentService(mockSpentRequestBody as Request['body'])).rejects.toThrow(
-        firebaseError
-      );
+      await expect(
+        postSpentService(mockSpentRequestBody as Request['body'])
+      ).rejects.toThrow(firebaseError);
     });
-
   });
 });
