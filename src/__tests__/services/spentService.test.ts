@@ -6,6 +6,11 @@ import {
   postSpentService,
 } from '../../services/spentService';
 import { FirebaseError } from 'firebase/app';
+import {
+  mockSpentServiceData,
+  mockSpentMonthData,
+  mockSpentRequestBody,
+} from '../__mocks__/spentData';
 
 // Firebase関連のモック
 vi.mock('firebase/database', () => ({
@@ -35,26 +40,8 @@ describe('spentService', () => {
 
   describe('getAllSpentService', () => {
     it('正常系: 全ての支出データを取得できる', async () => {
-      const mockData = {
-        '2024-01': {
-          credit: 50000,
-          electricity: 8000,
-          gas: 5000,
-          spending: 66000,
-          other: 3000,
-        },
-        '2024-02': {
-          credit: 45000,
-          electricity: 7500,
-          gas: 4500,
-          water: 3000,
-          spending: 60000,
-          other: 2500,
-        },
-      };
-
       const mockSnapshot = {
-        val: () => mockData,
+        val: () => mockSpentServiceData,
       };
 
       const { ref, getDatabase, child, get } = await import(
@@ -73,8 +60,8 @@ describe('spentService', () => {
       expect(get).toHaveBeenCalledWith('mockChild');
 
       expect(result).toEqual([
-        { month: '2024-01', water: 0, ...mockData['2024-01'] },
-        { month: '2024-02', ...mockData['2024-02'] },
+        { month: '2024-01', water: 0, ...mockSpentServiceData['2024-01'] },
+        { month: '2024-02', ...mockSpentServiceData['2024-02'] },
       ]);
     });
 
@@ -101,17 +88,8 @@ describe('spentService', () => {
 
   describe('getMonthSpentService', () => {
     it('正常系: 当月の支出データを取得できる', async () => {
-      const mockData = {
-        credit: 50000,
-        electricity: 8000,
-        gas: 5000,
-        water: 3000,
-        spending: 66000,
-        other: 2000,
-      };
-
       const mockSnapshot = {
-        val: () => mockData,
+        val: () => mockSpentMonthData,
       };
 
       const { makeYearMonthString } = await import(
@@ -132,7 +110,7 @@ describe('spentService', () => {
 
       expect(makeYearMonthString).toHaveBeenCalledWith(expect.any(Date));
       expect(child).toHaveBeenCalledWith('mockChild', '2024-01');
-      expect(result).toEqual(mockData);
+      expect(result).toEqual(mockSpentMonthData);
     });
 
     it('異常系: FirebaseErrorが発生した場合はそのままthrowする', async () => {
@@ -147,38 +125,30 @@ describe('spentService', () => {
 
   describe('postSpentService', () => {
     it('正常系: 支出データを正常に登録できる', async () => {
-      const requestBody = {
-        credit: 50000,
-        electricity: 8000,
-        gas: 5000,
-        water: 3000,
-        other: 2000,
-      };
-
       const { validation } = await import('../../schemas');
       const { makeYearMonthString } = await import(
         '../../utils/functions/makeYearMonthString'
       );
       const { getDatabase, ref, set } = await import('firebase/database');
-      (validation as Mock).mockReturnValue(requestBody);
+      (validation as Mock).mockReturnValue(mockSpentRequestBody);
       (makeYearMonthString as Mock).mockReturnValue('2024-01');
       (getDatabase as Mock).mockReturnValue('mockDb');
       (ref as Mock).mockReturnValue('mockRef');
       (set as Mock).mockResolvedValue(undefined);
 
-      const result = await postSpentService(requestBody as Request['body']);
+      const result = await postSpentService(mockSpentRequestBody as Request['body']);
 
-      expect(validation).toHaveBeenCalledWith(requestBody, expect.anything());
+      expect(validation).toHaveBeenCalledWith(mockSpentRequestBody, expect.anything());
       expect(makeYearMonthString).toHaveBeenCalledWith(expect.any(Date));
       expect(set).toHaveBeenCalledWith('mockRef', {
         spending: 68000,
-        ...requestBody,
+        ...mockSpentRequestBody,
       });
 
       expect(result).toEqual({
         month: '2024-01',
         spending: 68000,
-        ...requestBody,
+        ...mockSpentRequestBody,
       });
     });
 
@@ -193,26 +163,18 @@ describe('spentService', () => {
     });
 
     it('異常系: FirebaseErrorが発生した場合はそのままthrowする', async () => {
-      const requestBody = {
-        credit: 50000,
-        electricity: 8000,
-        gas: 5000,
-        water: 3000,
-        other: 2000,
-      };
-
       const { validation } = await import('../../schemas');
       const { makeYearMonthString } = await import(
         '../../utils/functions/makeYearMonthString'
       );
       const { set } = await import('firebase/database');
-      (validation as Mock).mockReturnValue(requestBody);
+      (validation as Mock).mockReturnValue(mockSpentRequestBody);
       (makeYearMonthString as Mock).mockReturnValue('2024-01');
 
       const firebaseError = new FirebaseError('Write failed', 'write-failed');
       (set as Mock).mockRejectedValue(firebaseError);
 
-      await expect(postSpentService(requestBody as Request['body'])).rejects.toThrow(
+      await expect(postSpentService(mockSpentRequestBody as Request['body'])).rejects.toThrow(
         firebaseError
       );
     });

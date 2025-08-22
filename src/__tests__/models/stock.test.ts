@@ -2,6 +2,11 @@ import { vi, describe, it, expect, beforeEach, Mock } from 'vitest';
 import { StockModel } from '../../models/stock';
 import { prisma } from '../../config/prisma';
 import { getNowInJapan } from '../../utils/functions/timezone';
+import {
+  mockStockList,
+  mockStockData,
+  mockStockUpdateData,
+} from '../__mocks__/stockData';
 
 // モック
 vi.mock('../../config/prisma', () => ({
@@ -23,55 +28,27 @@ describe('StockModel', () => {
 
   describe('getAll', () => {
     it('正常系: 全ての在庫データを取得できる', async () => {
-      const mockStocks = [
-        {
-          id: 1,
-          name: '商品1',
-          count: 10,
-          url: 'https://example.com/1',
-          created_at: new Date(),
-          updated_at: new Date(),
-        },
-        {
-          id: 2,
-          name: '商品2',
-          count: 5,
-          url: 'https://example.com/2',
-          created_at: new Date(),
-          updated_at: new Date(),
-        },
-      ];
-
-      (prisma.stock.findMany as Mock).mockResolvedValue(mockStocks);
+      (prisma.stock.findMany as Mock).mockResolvedValue(mockStockList);
 
       const result = await StockModel.getAll();
 
       expect(prisma.stock.findMany).toHaveBeenCalledWith({
         orderBy: { id: 'asc' },
       });
-      expect(result).toEqual(mockStocks);
+      expect(result).toEqual(mockStockList);
     });
   });
 
   describe('getById', () => {
     it('正常系: 指定したIDの在庫データを取得できる', async () => {
-      const mockStock = {
-        id: 1,
-        name: '商品1',
-        count: 10,
-        url: 'https://example.com/1',
-        created_at: new Date(),
-        updated_at: new Date(),
-      };
-
-      (prisma.stock.findUnique as Mock).mockResolvedValue(mockStock);
+      (prisma.stock.findUnique as Mock).mockResolvedValue(mockStockData);
 
       const result = await StockModel.getById(1);
 
       expect(prisma.stock.findUnique).toHaveBeenCalledWith({
         where: { id: 1 },
       });
-      expect(result).toEqual(mockStock);
+      expect(result).toEqual(mockStockData);
     });
 
     it('正常系: 存在しないIDの場合はnullを返す', async () => {
@@ -89,17 +66,12 @@ describe('StockModel', () => {
   describe('updateCount', () => {
     it('正常系: 在庫数を正常に更新できる', async () => {
       const mockNow = new Date();
-      const mockStock = {
-        id: 1,
-        name: '商品1',
-        count: 15,
-        url: 'https://example.com/1',
-        created_at: new Date(),
-        updated_at: mockNow,
-      };
 
       (getNowInJapan as Mock).mockReturnValue(mockNow);
-      (prisma.stock.update as Mock).mockResolvedValue(mockStock);
+      (prisma.stock.update as Mock).mockResolvedValue({
+        ...mockStockUpdateData,
+        updated_at: mockNow,
+      });
 
       const result = await StockModel.updateCount(1, 15);
 
@@ -111,7 +83,10 @@ describe('StockModel', () => {
           updated_at: mockNow,
         },
       });
-      expect(result).toEqual(mockStock);
+      expect(result).toEqual({
+        ...mockStockUpdateData,
+        updated_at: mockNow,
+      });
     });
 
     it('異常系: 更新に失敗した場合はnullを返す', async () => {

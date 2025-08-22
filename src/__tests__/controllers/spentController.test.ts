@@ -10,6 +10,12 @@ import {
   getMonthSpentService,
   postSpentService,
 } from '../../services/spentService';
+import {
+  mockSpentList,
+  mockSpentData,
+  mockSpentRequestBody,
+  mockSpentPostData,
+} from '../__mocks__/spentData';
 
 // モック
 vi.mock('../../services/spentService');
@@ -30,19 +36,7 @@ describe('spentController', () => {
 
   describe('getAllSpentController', () => {
     it('正常系: 全支出額データを正常に取得できる', async () => {
-      const mockData = [
-        {
-          month: '2024-01',
-          credit: 50000,
-          electricity: 8000,
-          gas: 5000,
-          water: 3000,
-          spending: 66000,
-          other: 2000,
-        },
-      ];
-
-      (getAllSpentService as Mock).mockResolvedValue(mockData);
+      (getAllSpentService as Mock).mockResolvedValue(mockSpentList);
 
       await getAllSpentController(
         mockRequest as Request,
@@ -51,7 +45,7 @@ describe('spentController', () => {
       );
 
       expect(getAllSpentService).toHaveBeenCalledOnce();
-      expect(mockResponse.json).toHaveBeenCalledWith(mockData);
+      expect(mockResponse.json).toHaveBeenCalledWith(mockSpentList);
       expect(mockNext).not.toHaveBeenCalled();
     });
 
@@ -73,17 +67,7 @@ describe('spentController', () => {
 
   describe('getMonthSpentController', () => {
     it('正常系: 当月の支出額データを正常に取得できる', async () => {
-      const mockData = {
-        month: '2024-01',
-        credit: 50000,
-        electricity: 8000,
-        gas: 5000,
-        water: 3000,
-        spending: 66000,
-        other: 2000,
-      };
-
-      (getMonthSpentService as Mock).mockResolvedValue(mockData);
+      (getMonthSpentService as Mock).mockResolvedValue(mockSpentData);
 
       await getMonthSpentController(
         mockRequest as Request,
@@ -92,7 +76,7 @@ describe('spentController', () => {
       );
 
       expect(getMonthSpentService).toHaveBeenCalledOnce();
-      expect(mockResponse.json).toHaveBeenCalledWith(mockData);
+      expect(mockResponse.json).toHaveBeenCalledWith(mockSpentData);
       expect(mockNext).not.toHaveBeenCalled();
     });
 
@@ -114,21 +98,8 @@ describe('spentController', () => {
 
   describe('postSpentController', () => {
     it('正常系: 支出額データを正常に登録できる', async () => {
-      const requestBody = {
-        credit: 50000,
-        electricity: 8000,
-        gas: 5000,
-        water: 3000,
-        other: 2000,
-      };
-      const mockData = {
-        month: '2024-01',
-        ...requestBody,
-        spending: 68000,
-      };
-
-      mockRequest.body = requestBody;
-      (postSpentService as Mock).mockResolvedValue(mockData);
+      mockRequest.body = mockSpentRequestBody;
+      (postSpentService as Mock).mockResolvedValue(mockSpentPostData);
 
       await postSpentController(
         mockRequest as Request,
@@ -136,8 +107,8 @@ describe('spentController', () => {
         mockNext
       );
 
-      expect(postSpentService).toHaveBeenCalledWith(requestBody);
-      expect(mockResponse.json).toHaveBeenCalledWith(mockData);
+      expect(postSpentService).toHaveBeenCalledWith(mockSpentRequestBody);
+      expect(mockResponse.json).toHaveBeenCalledWith(mockSpentPostData);
       expect(mockNext).not.toHaveBeenCalled();
     });
 
