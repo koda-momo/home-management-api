@@ -76,5 +76,24 @@ describe('gasService', () => {
       await expect(scrapeGasUsage()).rejects.toThrow();
       expect(mockBrowser.close).toHaveBeenCalled();
     });
+
+    it('取得したデータが文字列でない場合はエラーを投げること', async () => {
+      mockPuppeteer.launch.mockResolvedValue(mockBrowser as unknown as Browser);
+      mockBrowser.newPage.mockResolvedValue(mockPage as unknown as Page);
+      mockPage.$eval.mockResolvedValue(123); // 文字列以外
+
+      await expect(scrapeGasUsage()).rejects.toMatchObject({
+        message: expect.stringContaining('スクレイピングに失敗しました'),
+        statusCode: 500,
+      });
+      expect(mockBrowser.close).toHaveBeenCalled();
+    });
+
+    it('ブラウザがnullの場合はcloseを呼ばないこと', async () => {
+      mockPuppeteer.launch.mockResolvedValue(null as unknown as Browser);
+
+      await expect(scrapeGasUsage()).rejects.toThrow();
+      expect(mockBrowser.close).not.toHaveBeenCalled();
+    });
   });
 });
