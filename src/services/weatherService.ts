@@ -1,0 +1,56 @@
+import puppeteer, { type Browser } from 'puppeteer';
+import { errorResponse } from '../utils/const';
+
+const SCRAPING_USER_AGENT = process.env.SCRAPING_USER_AGENT || '';
+
+export const scrapeWeather = async (): Promise<{ data: string }> => {
+  let browser: Browser | null = null;
+  try {
+    browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      headless: true,
+      executablePath: puppeteer.executablePath(),
+      timeout: 30000,
+    });
+
+    //ログインページを開く
+    const page = await browser.newPage();
+    page.setDefaultNavigationTimeout(30000);
+    page.setDefaultTimeout(30000);
+    await page.setBypassCSP(true);
+    await page.setUserAgent(SCRAPING_USER_AGENT);
+
+    await page.goto('https://weather.yahoo.co.jp/weather/jp/13/4410.html', {
+      waitUntil: 'networkidle2',
+      timeout: 30000,
+    });
+
+    //データを取得
+    await page.waitForSelector('dt[class="title"]', { timeout: 10000 });
+    const data = await page.$eval(
+      'dt[class="title"]',
+      (item: { textContent: unknown }) => {
+        return item.textContent;
+      }
+    );
+
+    if (typeof data !== 'string') {
+      throw {
+        ...errorResponse.internalServerError,
+        message: '取得したデータが文字列ではありません。',
+      };
+    }
+
+    return { data };
+  } catch (error) {
+    throw {
+      ...errorResponse.internalServerError,
+      message: `スクレイピングに失敗しました:${error}`,
+    };
+  } finally {
+    // ブラウザを確実に閉じる
+    if (browser) {
+      await browser.close();
+    }
+  }
+};
