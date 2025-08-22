@@ -4,7 +4,7 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "start": "npx puppeteer browsers install chrome --force && tsc && node dist/server.js",
+    "start": "tsc && node dist/server.js",
     "dev": "nodemon src/server.ts",
     "prepare": "husky",
     "lint": "eslint .",
