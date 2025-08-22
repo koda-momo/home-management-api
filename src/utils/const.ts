@@ -44,4 +44,10 @@ export const errorResponse = {
     message: '在庫個数の更新に失敗しました',
     statusCode: 500,
   },
+  // spent
+  spentMustBeNumber: {
+    name: 'Error',
+    message: '金額は数字で入力してください',
+    statusCode: 400,
+  },
 } as const;

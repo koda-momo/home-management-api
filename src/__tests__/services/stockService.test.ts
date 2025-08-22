@@ -14,12 +14,13 @@ import {
   mockUpdatedApiData,
   mockUpdatedDbData,
 } from '../__mocks__/stock';
+import { validation } from '../../schemas';
 
 vi.mock('../../models/stock.js');
 vi.mock('../../schemas/stockSchema.js');
 
 const mockStockModel = vi.mocked(StockModel);
-const mockValidation = vi.mocked(stockSchema.validation);
+const mockValidation = vi.mocked(validation);
 
 describe('stockService', () => {
   beforeEach(() => {

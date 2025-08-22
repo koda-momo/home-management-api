@@ -4,6 +4,7 @@ export interface SpentDbData {
   gas: number;
   water?: number;
   spending: number;
+  other: number;
 }
 
 export type SpentDbArray = { [key: string]: SpentDbData };
@@ -15,4 +16,5 @@ export interface SpentApiData {
   gas: number;
   spending: number;
   water: number;
+  other: number;
 }
