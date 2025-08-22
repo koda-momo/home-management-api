@@ -19,6 +19,7 @@ export default defineConfig({
         'src/middlewares/**',
         'src/routes/**',
         'src/types/**',
+        'src/__tests__/__mocks__/**',
       ],
     },
   },

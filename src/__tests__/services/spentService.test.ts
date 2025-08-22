@@ -96,6 +96,7 @@ describe('spentService', () => {
 
       await expect(getAllSpentService()).rejects.toThrow(firebaseError);
     });
+
   });
 
   describe('getMonthSpentService', () => {
@@ -141,6 +142,7 @@ describe('spentService', () => {
 
       await expect(getMonthSpentService()).rejects.toThrow(firebaseError);
     });
+
   });
 
   describe('postSpentService', () => {
@@ -214,5 +216,6 @@ describe('spentService', () => {
         firebaseError
       );
     });
+
   });
 });
