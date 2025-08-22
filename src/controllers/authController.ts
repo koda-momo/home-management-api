@@ -1,38 +1,22 @@
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import {
-  validateCredentials,
-  createSession,
-  validateSession,
-  removeSession,
+  loginService,
+  getAuthStatusService,
+  logoutService,
 } from '../services/authService.js';
 import type {
   LoginRequest,
   LoginResponse,
   StatusResponse,
-} from '../utils/types.js';
+} from '../types/authType.js';
 
-export const login = (
+export const loginController = (
   req: Request<object, LoginResponse, LoginRequest>,
-  res: Response<LoginResponse>
+  res: Response<LoginResponse>,
+  next: NextFunction
 ): void => {
   try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      res
-        .status(400)
-        .json({ message: 'メールアドレスとパスワードを入力してください' });
-      return;
-    }
-
-    if (!validateCredentials(email, password)) {
-      res
-        .status(401)
-        .json({ message: 'メールアドレスまたはパスワードが間違っています' });
-      return;
-    }
-
-    const token = createSession(email);
+    const { response, token } = loginService(req.body);
 
     res.cookie('authToken', token, {
       httpOnly: true,
@@ -41,46 +25,46 @@ export const login = (
       sameSite: 'lax',
     });
 
-    res.json({ message: 'ログイン成功' });
-  } catch {
-    res.status(500).json({ message: 'サーバーエラーが発生しました' });
+    res.json(response);
+  } catch (error) {
+    next(error);
   }
 };
 
-export const status = (req: Request, res: Response<StatusResponse>): void => {
+export const statusController = (
+  req: Request,
+  res: Response<StatusResponse>,
+  next: NextFunction
+): void => {
   try {
     const token = req.cookies?.authToken;
+    const response = getAuthStatusService(token);
 
-    if (!token) {
-      res.json({ authenticated: false });
-      return;
-    }
-
-    const session = validateSession(token);
-
-    if (!session) {
+    if (!response.authenticated && token) {
       res.clearCookie('authToken');
-      res.json({ authenticated: false });
-      return;
     }
 
-    res.json({ authenticated: true, email: session.email });
-  } catch {
-    res.status(500).json({ authenticated: false });
+    res.json(response);
+  } catch (error) {
+    next(error);
   }
 };
 
-export const logout = (req: Request, res: Response<LoginResponse>): void => {
+export const logoutController = (
+  req: Request,
+  res: Response<LoginResponse>,
+  next: NextFunction
+): void => {
   try {
     const token = req.cookies?.authToken;
+    const response = logoutService(token);
 
     if (token) {
-      removeSession(token);
       res.clearCookie('authToken');
     }
 
-    res.json({ message: 'ログアウトしました' });
-  } catch {
-    res.status(500).json({ message: 'サーバーエラーが発生しました' });
+    res.json(response);
+  } catch (error) {
+    next(error);
   }
 };
