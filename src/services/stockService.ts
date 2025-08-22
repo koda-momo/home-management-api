@@ -4,7 +4,6 @@ import {
   getIdStockSchema,
   postAddStockCountSchema,
   postSubStockCountSchema,
-  validation,
 } from '../schemas/stockSchema';
 import { StockApiData, StockDbData } from '../types/stockType';
 import {
@@ -13,6 +12,7 @@ import {
   MIN_STOCK_COUNT,
   errorResponse,
 } from '../utils/const';
+import { validation } from '../schemas';
 
 const toCamelCaseKeys = (data: StockDbData): StockApiData => {
   const { created_at, updated_at, ...rest } = data;
