@@ -1,8 +1,12 @@
 import { Router } from 'express';
-import { getSpentController } from '../controllers/spentController';
+import {
+  getAllSpentController,
+  getMonthSpentController,
+} from '../controllers/spentController';
 
 const router = Router();
 
-router.get('/', getSpentController);
+router.get('/', getAllSpentController);
+router.get('/month', getMonthSpentController);
 
 export { router as spentRouter };

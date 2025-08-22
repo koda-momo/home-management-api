@@ -1,16 +1,35 @@
 import { Request, Response, NextFunction } from 'express';
-import { getSpentService } from '../services/spentService';
+import {
+  getAllSpentService,
+  getMonthSpentService,
+} from '../services/spentService';
 
 /**
- * 支出額取得API.
+ * 支出額全取得API.
  */
-export const getSpentController = async (
+export const getAllSpentController = async (
   _req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const response = await getSpentService();
+    const response = await getAllSpentService();
+    res.json(response);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * 支出額当月取得API.
+ */
+export const getMonthSpentController = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const response = await getMonthSpentService();
     res.json(response);
   } catch (error) {
     next(error);

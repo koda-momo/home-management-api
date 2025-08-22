@@ -11,7 +11,7 @@ export default defineConfig({
         'node_modules/',
         'dist/',
         '**/*.d.ts',
-        'vitest.config.ts',
+        'vitest.config.mjs',
         'eslint.config.js',
         'src/app.ts',
         'src/server.ts',

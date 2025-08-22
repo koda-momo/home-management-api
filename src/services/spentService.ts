@@ -1,22 +1,46 @@
 import { ref, getDatabase, child, get } from 'firebase/database';
 import { app } from '../config/firebase';
 import { errorResponse } from '../utils/const';
+import { makeYearMonthString } from '../utils/functions/makeYearMonthString';
+import { SpentApiData, SpentDbArray } from '../types/spentType';
 
 /**
- * 支出額取得API.
+ * 支出額全取得API.
  */
-export const getSpentService = async (): Promise<{ data: string }> => {
+export const getAllSpentService = async (): Promise<SpentApiData[]> => {
   try {
     const dbRef = ref(getDatabase(app));
     const dateQuery = child(dbRef, 'price');
-    const yearMonthString = '202507';
+
+    const dateSnapShot = await get(dateQuery);
+    const data: SpentDbArray = dateSnapShot.val();
+    const monthKeys = Object.keys(data);
+    const responseData = monthKeys.map((monthKey) => {
+      // 水道代がなければ上書き
+      return { month: monthKey, water: 0, ...data[monthKey] };
+    });
+
+    return responseData;
+  } catch (error) {
+    throw { ...errorResponse.internalServerError, message: error };
+  }
+};
+
+/**
+ * 支出額当月分取得API.
+ */
+export const getMonthSpentService = async (): Promise<SpentApiData> => {
+  try {
+    const dbRef = ref(getDatabase(app));
+    const dateQuery = child(dbRef, 'price');
+
+    const date = new Date();
+    const yearMonthString = makeYearMonthString(date);
 
     const dateSnapShot = await get(child(dateQuery, yearMonthString));
-    const spendingData = dateSnapShot.val();
+    const data = dateSnapShot.val();
 
-    return {
-      data: spendingData,
-    };
+    return data;
   } catch (error) {
     throw { ...errorResponse.internalServerError, message: error };
   }
