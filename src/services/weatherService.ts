@@ -4,6 +4,8 @@ import { errorResponse } from '../utils/const';
 import chromium from '@sparticuz/chromium';
 import { NODE_ENV, SCRAPING_USER_AGENT } from '../config/common';
 
+const TIME_OUT = 60000;
+
 export const scrapeWeather = async (): Promise<{ data: string }> => {
   let browser: Browser | null = null;
   try {
@@ -25,20 +27,23 @@ export const scrapeWeather = async (): Promise<{ data: string }> => {
 
     console.log('開始');
     const page = await browser.newPage();
-    page.setDefaultNavigationTimeout(30000);
-    page.setDefaultTimeout(30000);
+    page.setDefaultNavigationTimeout(TIME_OUT);
+    page.setDefaultTimeout(TIME_OUT);
     await page.setBypassCSP(true);
     await page.setUserAgent(SCRAPING_USER_AGENT);
     console.log('ページを開きました！');
-
     await page.goto('https://weather.yahoo.co.jp/weather/jp/13/4410.html', {
-      waitUntil: 'networkidle2',
-      timeout: 30000,
+      waitUntil: 'domcontentloaded',
+      timeout: TIME_OUT,
     });
+    // await page.goto('https://weather.yahoo.co.jp/weather/jp/13/4410.html', {
+    //   waitUntil: 'networkidle2',
+    //   timeout: 30000,
+    // });
     console.log('天気のURLに辿り着きました！');
 
     //データを取得
-    await page.waitForSelector('dt[class="title"]', { timeout: 10000 });
+    await page.waitForSelector('dt[class="title"]', { timeout: TIME_OUT });
     const data = await page.$eval(
       'dt[class="title"]',
       (item: { textContent: unknown }) => {
