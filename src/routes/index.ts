@@ -8,6 +8,7 @@ import { spentRouter } from './spent';
 
 const router = Router();
 
+router.get('/', (req, res) => res.send('接続テスト'));
 router.use(API_URL.stock, stockRouter);
 router.use(API_URL.spent, spentRouter);
 router.use(API_URL.gas, gasRouter);

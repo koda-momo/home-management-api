@@ -1,38 +1,52 @@
-import puppeteer, { type Browser } from 'puppeteer';
+/* eslint-disable no-console */
+import puppeteer, { type Browser } from 'puppeteer-core';
 import { errorResponse } from '../utils/const';
+import chromium from '@sparticuz/chromium';
+import { NODE_ENV, SCRAPING_USER_AGENT } from '../config/common';
 
-const SCRAPING_USER_AGENT = process.env.SCRAPING_USER_AGENT || '';
+const TIME_OUT = 60000;
 
 export const scrapeWeather = async (): Promise<{ data: string }> => {
   let browser: Browser | null = null;
   try {
-    browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      headless: true,
-      executablePath: puppeteer.executablePath(),
-      timeout: 30000,
-    });
+    if (NODE_ENV === 'dev') {
+      browser = await puppeteer.launch({
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        channel: 'chrome',
+        headless: false,
+      });
+    } else {
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+        ignoreHTTPSErrors: true,
+      });
+    }
 
-    //ログインページを開く
+    console.log('開始');
     const page = await browser.newPage();
-    page.setDefaultNavigationTimeout(30000);
-    page.setDefaultTimeout(30000);
+    page.setDefaultNavigationTimeout(TIME_OUT);
+    page.setDefaultTimeout(TIME_OUT);
     await page.setBypassCSP(true);
     await page.setUserAgent(SCRAPING_USER_AGENT);
-
+    console.log('ページを開きました！');
     await page.goto('https://weather.yahoo.co.jp/weather/jp/13/4410.html', {
-      waitUntil: 'networkidle2',
-      timeout: 30000,
+      waitUntil: 'domcontentloaded',
+      timeout: TIME_OUT,
     });
+    console.log('天気のURLに辿り着きました！');
 
     //データを取得
-    await page.waitForSelector('dt[class="title"]', { timeout: 10000 });
+    await page.waitForSelector('dt[class="title"]', { timeout: TIME_OUT });
     const data = await page.$eval(
       'dt[class="title"]',
       (item: { textContent: unknown }) => {
         return item.textContent;
       }
     );
+    console.log('データを取得しました！');
 
     if (typeof data !== 'string') {
       throw {
