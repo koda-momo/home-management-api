@@ -3,6 +3,7 @@ export const API_URL = {
   stock: '/stock',
   spent: '/spent',
   gas: '/gas',
+  line: '/line',
   auth: '/auth',
 };
 
