@@ -7,11 +7,9 @@ import type {
 import { validation } from '../schemas/index.js';
 import { loginRequestSchema } from '../schemas/authSchema.js';
 import { errorResponse } from '../utils/const.js';
+import { AUTH_EMAIL, AUTH_PASSWORD } from '../config/common.js';
 
 const sessions: Record<string, Session> = {};
-
-const AUTH_EMAIL = process.env.AUTH_EMAIL || '';
-const AUTH_PASSWORD = process.env.AUTH_PASSWORD || '';
 
 const validateCredentials = (email: string, password: string): boolean => {
   return email === AUTH_EMAIL && password === AUTH_PASSWORD;
