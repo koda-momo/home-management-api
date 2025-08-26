@@ -14,8 +14,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage",
-    "postinstall": "npm install && npx puppeteer browsers install chrome"
+    "test:coverage": "vitest --coverage"
   },
   "keywords": [],
   "author": "",
