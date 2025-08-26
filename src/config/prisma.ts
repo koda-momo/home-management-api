@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { PrismaClient } from '@prisma/client';
-import { getNowInJapan } from '../utils/timezone';
+import { getNowInJapan } from '../utils/functions/timezone';
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;

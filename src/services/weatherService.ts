@@ -1,19 +1,12 @@
 /* eslint-disable no-console */
 import puppeteer, { type Browser } from 'puppeteer-core';
 import { errorResponse } from '../utils/const';
-import { GasUsageData } from '../types/gasType';
 import chromium from '@sparticuz/chromium';
-import {
-  NODE_ENV,
-  SCRAPING_GAS_URL,
-  SCRAPING_PASSWORD,
-  SCRAPING_USER_AGENT,
-  SCRAPING_USER_ID,
-} from '../config/common';
+import { NODE_ENV, SCRAPING_USER_AGENT } from '../config/common';
 
 const TIME_OUT = 60000;
 
-export const scrapeGasUsage = async (): Promise<GasUsageData> => {
+export const scrapeWeather = async (): Promise<{ data: string }> => {
   let browser: Browser | null = null;
   try {
     if (NODE_ENV === 'dev') {
@@ -32,7 +25,6 @@ export const scrapeGasUsage = async (): Promise<GasUsageData> => {
       });
     }
 
-    //ログインページを開く
     console.log('開始');
     const page = await browser.newPage();
     page.setDefaultNavigationTimeout(TIME_OUT);
@@ -40,47 +32,22 @@ export const scrapeGasUsage = async (): Promise<GasUsageData> => {
     await page.setBypassCSP(true);
     await page.setUserAgent(SCRAPING_USER_AGENT);
     console.log('ページを開きました！');
-
-    await page.goto(SCRAPING_GAS_URL, {
-      waitUntil: 'networkidle2',
+    await page.goto('https://weather.yahoo.co.jp/weather/jp/13/4410.html', {
+      waitUntil: 'domcontentloaded',
       timeout: TIME_OUT,
     });
-    console.log('アクセスしました！');
-
-    //ログインする
-    await page.waitForSelector('#loginId', { timeout: TIME_OUT });
-    await page.type('#loginId', SCRAPING_USER_ID);
-    await page.type('#password', SCRAPING_PASSWORD);
-
-    await Promise.all([
-      page.waitForNavigation({
-        waitUntil: 'domcontentloaded',
-        timeout: TIME_OUT,
-      }),
-      page.click('button[id="submit-btn"]'),
-    ]);
-    console.log('ログインしました！');
+    console.log('天気のURLに辿り着きました！');
 
     //データを取得
-    await page.waitForFunction(
-      () => {
-        const element = document.querySelector(
-          'a[href="/billing?tab=overview"]'
-        );
-        return (
-          element && element.textContent && element.textContent.includes('円')
-        );
-      },
-      { timeout: TIME_OUT }
-    );
+    await page.waitForSelector('dt[class="title"]', { timeout: TIME_OUT });
     const data = await page.$eval(
-      'a[href$="/billing?tab=overview"]',
+      'dt[class="title"]',
       (item: { textContent: unknown }) => {
         return item.textContent;
       }
     );
+    console.log('データを取得しました！');
 
-    // 金額部分のみを抽出
     if (typeof data !== 'string') {
       throw {
         ...errorResponse.internalServerError,
@@ -88,11 +55,7 @@ export const scrapeGasUsage = async (): Promise<GasUsageData> => {
       };
     }
 
-    const amountMatch = data.match(/[\d,]+円/);
-    const amount = amountMatch ? amountMatch[0].replace(/[,円]/g, '') : data;
-
-    // ガス使用量データ取得成功
-    return { amount };
+    return { data };
   } catch (error) {
     throw {
       ...errorResponse.internalServerError,

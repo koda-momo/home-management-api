@@ -1,5 +1,10 @@
 export const BASE_URL = '/api/v1';
-export const API_URL = { stock: '/stock', gas: '/gas' };
+export const API_URL = {
+  stock: '/stock',
+  spent: '/spent',
+  gas: '/gas',
+  auth: '/auth',
+};
 
 // stock
 export const MAX_STOCK_COUNT = 21;
@@ -43,5 +48,11 @@ export const errorResponse = {
     name: 'Error',
     message: '在庫個数の更新に失敗しました',
     statusCode: 500,
+  },
+  // spent
+  spentMustBeNumber: {
+    name: 'Error',
+    message: '金額は数字で入力してください',
+    statusCode: 400,
   },
 } as const;

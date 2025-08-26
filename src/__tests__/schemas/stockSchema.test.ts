@@ -4,9 +4,9 @@ import {
   getIdStockSchema,
   postAddStockCountSchema,
   postSubStockCountSchema,
-  validation,
 } from '../../schemas/stockSchema';
 import { errorResponse } from '../../utils/const';
+import { validation } from '../../schemas';
 
 describe('stockSchema', () => {
   describe('getIdStockSchema', () => {
