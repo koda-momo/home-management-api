@@ -1,5 +1,6 @@
-import puppeteer, { type Browser } from 'puppeteer';
+import puppeteer, { type Browser } from 'puppeteer-core';
 import { errorResponse } from '../utils/const';
+import chromium from '@sparticuz/chromium';
 
 const SCRAPING_USER_AGENT = process.env.SCRAPING_USER_AGENT || '';
 
@@ -7,10 +8,11 @@ export const scrapeWeather = async (): Promise<{ data: string }> => {
   let browser: Browser | null = null;
   try {
     browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      headless: true,
-      executablePath: puppeteer.executablePath(),
-      timeout: 30000,
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+      ignoreHTTPSErrors: true,
     });
 
     //ログインページを開く

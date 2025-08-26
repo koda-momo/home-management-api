@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "installCommand": "npm install",
+  "routes": [{ "src": "/(.*)", "dest": "/src/app.ts" }],
+  "outputDirectory": "/dist"
+}

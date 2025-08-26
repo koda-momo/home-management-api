@@ -1,6 +1,7 @@
 import puppeteer, { type Browser } from 'puppeteer';
 import { errorResponse } from '../utils/const';
 import { GasUsageData } from '../types/gasType';
+import chromium from '@sparticuz/chromium';
 
 const SCRAPING_USER_AGENT = process.env.SCRAPING_USER_AGENT || '';
 const SCRAPING_USER_ID = process.env.SCRAPING_USER_ID || '';
@@ -11,9 +12,9 @@ export const scrapeGasUsage = async (): Promise<GasUsageData> => {
   let browser: Browser | null = null;
   try {
     browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      headless: true,
-      timeout: 30000,
+      args: chromium.args,
+      executablePath: await chromium.executablePath(),
+      headless: false,
     });
 
     //ログインページを開く
