@@ -1,19 +1,26 @@
 import puppeteer, { type Browser } from 'puppeteer-core';
 import { errorResponse } from '../utils/const';
 import chromium from '@sparticuz/chromium';
-
-const SCRAPING_USER_AGENT = process.env.SCRAPING_USER_AGENT || '';
+import { NODE_ENV, SCRAPING_USER_AGENT } from '../config/common';
 
 export const scrapeWeather = async (): Promise<{ data: string }> => {
   let browser: Browser | null = null;
   try {
-    browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
-      ignoreHTTPSErrors: true,
-    });
+    if (NODE_ENV === 'dev') {
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        executablePath: await chromium.executablePath(),
+        headless: false,
+      });
+    } else {
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+        ignoreHTTPSErrors: true,
+      });
+    }
 
     //ログインページを開く
     const page = await browser.newPage();
