@@ -1,42 +1,65 @@
-import puppeteer, { type Browser } from 'puppeteer';
+/* eslint-disable no-console */
+import puppeteer, { type Browser } from 'puppeteer-core';
 import { errorResponse } from '../utils/const';
 import { GasUsageData } from '../types/gasType';
 import chromium from '@sparticuz/chromium';
+import {
+  NODE_ENV,
+  SCRAPING_GAS_URL,
+  SCRAPING_PASSWORD,
+  SCRAPING_USER_AGENT,
+  SCRAPING_USER_ID,
+} from '../config/common';
 
-const SCRAPING_USER_AGENT = process.env.SCRAPING_USER_AGENT || '';
-const SCRAPING_USER_ID = process.env.SCRAPING_USER_ID || '';
-const SCRAPING_PASSWORD = process.env.SCRAPING_PASSWORD || '';
-const SCRAPING_GAS_URL = process.env.SCRAPING_GAS_URL || '';
+const TIME_OUT = 60000;
 
 export const scrapeGasUsage = async (): Promise<GasUsageData> => {
   let browser: Browser | null = null;
   try {
-    browser = await puppeteer.launch({
-      args: chromium.args,
-      executablePath: await chromium.executablePath(),
-      headless: false,
-    });
+    if (NODE_ENV === 'dev') {
+      browser = await puppeteer.launch({
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        channel: 'chrome',
+        headless: false,
+      });
+    } else {
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+        ignoreHTTPSErrors: true,
+      });
+    }
 
     //ログインページを開く
+    console.log('開始');
     const page = await browser.newPage();
-    page.setDefaultNavigationTimeout(30000);
-    page.setDefaultTimeout(30000);
+    page.setDefaultNavigationTimeout(TIME_OUT);
+    page.setDefaultTimeout(TIME_OUT);
     await page.setBypassCSP(true);
     await page.setUserAgent(SCRAPING_USER_AGENT);
+    console.log('ページを開きました！');
 
     await page.goto(SCRAPING_GAS_URL, {
       waitUntil: 'networkidle2',
-      timeout: 30000,
+      timeout: TIME_OUT,
     });
+    console.log('アクセスしました！');
+
     //ログインする
-    await page.waitForSelector('#loginId', { timeout: 10000 });
+    await page.waitForSelector('#loginId', { timeout: TIME_OUT });
     await page.type('#loginId', SCRAPING_USER_ID);
     await page.type('#password', SCRAPING_PASSWORD);
 
     await Promise.all([
-      page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 }),
+      page.waitForNavigation({
+        waitUntil: 'domcontentloaded',
+        timeout: TIME_OUT,
+      }),
       page.click('button[id="submit-btn"]'),
     ]);
+    console.log('ログインしました！');
 
     //データを取得
     await page.waitForFunction(
@@ -48,7 +71,7 @@ export const scrapeGasUsage = async (): Promise<GasUsageData> => {
           element && element.textContent && element.textContent.includes('円')
         );
       },
-      { timeout: 10000 }
+      { timeout: TIME_OUT }
     );
     const data = await page.$eval(
       'a[href$="/billing?tab=overview"]',

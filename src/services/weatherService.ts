@@ -36,10 +36,6 @@ export const scrapeWeather = async (): Promise<{ data: string }> => {
       waitUntil: 'domcontentloaded',
       timeout: TIME_OUT,
     });
-    // await page.goto('https://weather.yahoo.co.jp/weather/jp/13/4410.html', {
-    //   waitUntil: 'networkidle2',
-    //   timeout: 30000,
-    // });
     console.log('天気のURLに辿り着きました！');
 
     //データを取得
