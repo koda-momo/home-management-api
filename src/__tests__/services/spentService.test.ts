@@ -109,7 +109,7 @@ describe('spentService', () => {
 
       expect(makeYearMonthString).toHaveBeenCalledWith(expect.any(Date));
       expect(child).toHaveBeenCalledWith('mockChild', '2024-01');
-      expect(result).toEqual(mockSpentMonthData);
+      expect(result).toEqual({ month: '2024-01', ...mockSpentMonthData });
     });
 
     it('異常系: FirebaseErrorが発生した場合はそのままthrowする', async () => {
