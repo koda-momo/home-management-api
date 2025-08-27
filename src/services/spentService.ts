@@ -51,7 +51,7 @@ export const getMonthSpentService = async (): Promise<SpentApiData> => {
     const dateSnapShot = await get(child(dateQuery, yearMonthString));
     const data = dateSnapShot.val();
 
-    return data;
+    return { month: yearMonthString, ...data };
   } catch (error) {
     if (error) {
       throw error;
