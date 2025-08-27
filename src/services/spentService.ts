@@ -19,8 +19,7 @@ export const getAllSpentService = async (): Promise<SpentApiData[]> => {
     const data: SpentDbArray = dateSnapShot.val();
     const monthKeys = Object.keys(data);
     const responseData = monthKeys.map((monthKey) => {
-      // 水道代がなければ上書き
-      return { month: monthKey, water: 0, ...data[monthKey] };
+      return { month: monthKey, ...data[monthKey] };
     });
 
     return responseData;
@@ -52,7 +51,7 @@ export const getMonthSpentService = async (): Promise<SpentApiData> => {
     const dateSnapShot = await get(child(dateQuery, yearMonthString));
     const data = dateSnapShot.val();
 
-    return data;
+    return { month: yearMonthString, ...data };
   } catch (error) {
     if (error) {
       throw error;
