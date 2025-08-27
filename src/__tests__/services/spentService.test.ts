@@ -60,7 +60,7 @@ describe('spentService', () => {
       expect(get).toHaveBeenCalledWith('mockChild');
 
       expect(result).toEqual([
-        { month: '2024-01', water: 0, ...mockSpentServiceData['2024-01'] },
+        { month: '2024-01', ...mockSpentServiceData['2024-01'] },
         { month: '2024-02', ...mockSpentServiceData['2024-02'] },
       ]);
     });
@@ -144,13 +144,13 @@ describe('spentService', () => {
       );
       expect(makeYearMonthString).toHaveBeenCalledWith(expect.any(Date));
       expect(set).toHaveBeenCalledWith('mockRef', {
-        spending: 68000,
+        spending: 52000,
         ...mockSpentRequestBody,
       });
 
       expect(result).toEqual({
         month: '2024-01',
-        spending: 68000,
+        spending: 52000,
         ...mockSpentRequestBody,
       });
     });
