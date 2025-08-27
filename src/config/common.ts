@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const NODE_ENV = process.env.NODE_ENV || '';
+export const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL || '';
 
 export const AUTH_EMAIL = process.env.AUTH_EMAIL || '';
 export const AUTH_PASSWORD = process.env.AUTH_PASSWORD || '';
