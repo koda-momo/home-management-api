@@ -21,8 +21,8 @@ export const loginController = (
     res.cookie('authToken', token, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24時間
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: process.env.NODE_ENV !== 'dev',
+      sameSite: 'strict',
     });
 
     res.json(response);
