@@ -67,4 +67,15 @@ export const errorResponse = {
     message: 'カートへの挿入に失敗しました',
     statusCode: 500,
   },
+  // auth
+  unauthorizedAccess: {
+    name: 'Error',
+    message: 'APIキーが無効です',
+    statusCode: 401,
+  },
+  missingApiKey: {
+    name: 'Error',
+    message: 'APIキーが必要です',
+    statusCode: 401,
+  },
 } as const;
