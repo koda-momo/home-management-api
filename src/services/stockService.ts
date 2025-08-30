@@ -1,6 +1,7 @@
 import { Request } from 'express';
 import { StockModel } from '../models/stock';
 import {
+  getAllStockSchema,
   getIdStockSchema,
   postAddStockCountSchema,
   postSubStockCountSchema,
@@ -28,6 +29,23 @@ const toCamelCaseKeys = (data: StockDbData): StockApiData => {
  */
 export const getAllStockService = async (): Promise<StockApiData[]> => {
   const data = await StockModel.getAll();
+  if (!data) {
+    throw errorResponse.stockNotFound;
+  }
+
+  const responseData = data.map((item) => toCamelCaseKeys(item));
+  return responseData;
+};
+
+/**
+ * 在庫情報全取得API（ページネーションと検索機能付き）.
+ */
+export const getAllStockWithPaginationService = async (
+  query: Request['query']
+): Promise<StockApiData[]> => {
+  const { page, keyword } = validation(query, getAllStockSchema);
+  const data = await StockModel.getAllWithPagination(page, keyword);
+
   if (!data) {
     throw errorResponse.stockNotFound;
   }

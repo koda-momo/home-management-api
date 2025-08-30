@@ -11,6 +11,7 @@ export const API_URL = {
 export const MAX_STOCK_COUNT = 21;
 export const MIN_STOCK_COUNT = 0;
 export const EDIT_STOCK_COUNT = 1;
+export const ITEMS_PER_PAGE = 20;
 
 export const errorResponse = {
   badRequest: {
