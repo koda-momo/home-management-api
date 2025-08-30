@@ -4,6 +4,7 @@ export const API_URL = {
   spent: '/spent',
   line: '/line',
   auth: '/auth',
+  cart: '/cart',
 };
 
 // stock
@@ -54,5 +55,16 @@ export const errorResponse = {
     name: 'Error',
     message: '金額は数字で入力してください',
     statusCode: 400,
+  },
+  // cart
+  cartNotFound: {
+    name: 'Error',
+    message: 'カート情報が見つかりません',
+    statusCode: 404,
+  },
+  cartInsertFailed: {
+    name: 'Error',
+    message: 'カートへの挿入に失敗しました',
+    statusCode: 500,
   },
 } as const;
