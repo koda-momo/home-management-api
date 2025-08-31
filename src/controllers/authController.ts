@@ -22,7 +22,7 @@ export const loginController = (
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24時間
       secure: process.env.NODE_ENV !== 'dev',
-      sameSite: 'strict',
+      sameSite: 'none',
     });
 
     res.json(response);
